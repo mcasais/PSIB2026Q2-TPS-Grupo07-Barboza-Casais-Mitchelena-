@@ -48,7 +48,11 @@ results/         figuras y tablas generadas
 ## Pipeline y estado
 
 1. [x] Descarga de la base.
-2. [ ] Parser de episodios → tabla con registro, derivación, tipo (ST/T, +/−), inicio, fin, duración y desviación máxima. Es el ground truth.
+2. [x] Parser de episodios → tabla con registro, derivación, tipo (ST/T, +/−), inicio, fin, duración y desviación máxima. Es el ground truth.
+   - `python src/episodios.py` → `results/episodios_edb.csv`.
+   - Episodios sin cierre: se cierran al final del registro con `fin_inferido=True`.
+   - Cambios de eje (minúsculas): se incluyen con `cambio_eje=True`.
+   - Sub-intervalos extremos T++/T−−: se ignoran.
 3. [ ] Exploración y acondicionamiento de la base:
    - Derivaciones por registro.
    - Estadística de episodios.
