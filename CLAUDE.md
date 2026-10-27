@@ -53,10 +53,15 @@ results/         figuras y tablas generadas
    - Episodios sin cierre: se cierran al final del registro con `fin_inferido=True`.
    - Cambios de eje (minúsculas): se incluyen con `cambio_eje=True`.
    - Sub-intervalos extremos T++/T−−: se ignoran.
-3. [ ] Exploración y acondicionamiento de la base:
-   - Derivaciones por registro.
-   - Estadística de episodios.
-   - Calidad de señal: deriva, ruido, saturación.
+3. [x] Exploración y acondicionamiento de la base:
+   - `python src/exploracion.py` → `results/registros_edb.csv`, `results/calidad_ventanas_edb.csv.gz`, `results/figuras/exploracion_*.png`. Parámetros en `config/calidad.json`.
+   - [x] Derivaciones por registro: 15 combinaciones, en distinto orden; V5 (51 registros) y MLIII (47) son las más frecuentes.
+   - [x] Estadística de episodios: 368 ST y 401 T (más 21 cambios de eje). El 61 % de los ST tiene un episodio simultáneo en la otra derivación.
+   - [x] Calidad de señal por ventanas de 10 s: deriva (doble mediana 200/600 ms), ruido > 40 Hz (desvío robusto), saturación (mesetas en el extremo) y ruido anotado (`~`, máscara de bits en `subtype`). Las métricas se validaron contra las anotaciones `~`: AUC 0,81 (deriva) y 0,87 (ruido).
+   - [x] Criterio de descarte: solo la anotación de la base. Se descarta la ventana (columna `descartar`) si tiene cualquier tramo anotado como ruidoso o ilegible (`frac_anotada_max = 0`). Resultado: 9,5 % de las ventanas; e0148-0 se pierde entera.
+     - Las métricas propias no se usan para descartar porque eliminaban derivaciones legibles con ruido moderado constante (e0147-0).
+     - Pendiente para la LTST u otras bases sin anotación `~`: hará falta un criterio basado en las métricas.
+     - En 137 de los 368 episodios ST hay alguna ventana descartada en ±60 s alrededor del inicio. Tenerlo en cuenta en los pasos 6, 8 y 9 (interpolar o enmascarar latidos sueltos en vez de excluir el episodio entero).
 4. [ ] Filtrado:
    - Pasaaltos ≤ 0,05 Hz con fase cero (Kligfield 2007), para no distorsionar el ST.
    - Alternativa: línea de base por splines.

@@ -1,0 +1,18 @@
+{
+  "ventana_s": 10,
+  "linea_base": {
+    "mediana_1_s": 0.2,
+    "mediana_2_s": 0.6
+  },
+  "ruido_af": {
+    "corte_hz": 40,
+    "orden": 4
+  },
+  "saturacion": {
+    "tolerancia_cuentas": 1,
+    "meseta_min_muestras": 3
+  },
+  "descarte": {
+    "frac_anotada_max": 0.0
+  }
+}
