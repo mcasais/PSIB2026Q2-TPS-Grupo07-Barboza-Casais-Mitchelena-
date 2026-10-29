@@ -1,0 +1,60 @@
+{
+  "filtros": {
+    "pa_005": {"tipo": "pasaaltos", "corte_hz": 0.05, "orden": 2},
+    "pa_067": {"tipo": "pasaaltos", "corte_hz": 0.67, "orden": 2},
+    "notch_50": {"tipo": "notch", "frecuencia_hz": 50, "q": 30},
+    "pb_40": {"tipo": "pasabajos", "corte_hz": 40, "orden": 4},
+    "splines": {"tipo": "splines"},
+    "wiener": {"tipo": "wiener"}
+  },
+  "cadenas": {
+    "crudo": [],
+    "pa_005": ["pa_005"],
+    "pa_067": ["pa_067"],
+    "splines": ["splines"],
+    "wiener": ["pa_005", "wiener"],
+    "pa_005_notch_pb40": ["pa_005", "notch_50", "pb_40"],
+    "splines_notch_pb40": ["splines", "notch_50", "pb_40"]
+  },
+  "padding_periodos": 5,
+  "isoelectrico": {
+    "busqueda_ms": [-120, -40],
+    "ancho_ms": 20
+  },
+  "medicion_st": {
+    "desde_r_ms": 120,
+    "ancho_ms": 20
+  },
+  "wiener": {
+    "ventana_latido_ms": [-250, 450],
+    "segmento_s": 60,
+    "nfft": 256,
+    "min_latidos": 20
+  },
+  "impulso": {
+    "amplitud_mv": 3.0,
+    "duracion_s": 0.1,
+    "desplazamiento_max_mv": 0.1,
+    "pendiente_max_mv_s": 0.3
+  },
+  "sintetica": {
+    "plantillas": [["e0103", 0], ["e0103", 1], ["e0305", 1]],
+    "repeticiones": 5,
+    "duracion_s": 600,
+    "rr_medio_s": 0.85,
+    "rr_amplitud_s": 0.05,
+    "rr_frecuencia_hz": 0.25,
+    "episodio": {"inicio_s": 150, "rampa_s": 60, "meseta_s": 120, "amplitud_mv": -0.2},
+    "desplazamiento_st_ms": [40, 400],
+    "deriva": {"f_min_hz": 0.01, "f_max_hz": 0.5, "n_componentes": 10, "rms_mv": 0.3},
+    "ruido_blanco_mv": 0.02,
+    "linea_50hz_mv": 0.05,
+    "margen_s": 20
+  },
+  "real": {
+    "referencia_s": 30,
+    "ventana_pico_s": 5,
+    "min_latidos": 3
+  },
+  "ejemplo": {"registro": "e0147", "derivacion": 0, "inicio_s": 1830, "duracion_s": 20}
+}

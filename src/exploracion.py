@@ -398,6 +398,26 @@ def marcar_descarte(ventanas, p):
     return ventanas
 
 
+def mascara_descarte(ventanas, registro, derivacion, n_muestras, fs):
+    """Pasa la columna 'descartar' de la tabla de ventanas a un vector
+    booleano por muestra (True = muestra en una ventana descartada).
+
+    Entradas: ventanas (DataFrame de calidad_ventanas_<base>.csv.gz),
+    registro, derivacion (int), n_muestras (largo de la señal) y fs (Hz).
+    Las muestras finales que no completan una ventana se marcan como no
+    descartadas, igual que en el cálculo de calidad (no se evaluaron).
+    """
+    ventana_s = leer_parametros()['ventana_s']
+    filas = ventanas[(ventanas['registro'] == registro)
+                     & (ventanas['derivacion'] == derivacion)]
+    mascara = np.zeros(n_muestras, dtype=bool)
+    for inicio_s in filas.loc[filas['descartar'], 'inicio_s']:
+        idx_ini = int(round(inicio_s * fs))
+        idx_fin = int(round((inicio_s + ventana_s) * fs))
+        mascara[idx_ini:idx_fin] = True
+    return mascara
+
+
 def resumen_por_registro(ventanas):
     """Una fila por registro con métricas de calidad de cada derivación:
     mediana y p95 de deriva y ruido, fracción del tiempo anotada como
