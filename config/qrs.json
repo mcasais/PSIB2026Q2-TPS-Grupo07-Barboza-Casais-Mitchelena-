@@ -1,0 +1,12 @@
+{
+  "pasabanda_hz": [8, 20],
+  "orden_pasabanda": 2,
+  "ventana_integracion_s": 0.150,
+  "refractario_s": 0.200,
+  "ventana_onda_t_s": 0.360,
+  "aprendizaje_s": 2.0,
+  "factor_busqueda_atras": 1.66,
+  "n_rr_promedio": 8,
+  "reinicio_sin_qrs_s": 3.0,
+  "tolerancia_validacion_s": 0.150
+}

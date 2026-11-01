@@ -1,0 +1,8 @@
+{
+  "ventana_ref_s": 300,
+  "ventana_test_s": 60,
+  "paso_s": 2.0,
+  "umbral_disimilitud_eta": 1.8,
+  "duracion_min_episodio_s": 30,
+  "tolerancia_coincidencia_s": 60.0
+}

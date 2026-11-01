@@ -1,0 +1,14 @@
+{
+  "fs_remuestreo_hz": 2.0,
+  "isoelectrico": {
+    "busqueda_ms": [-120, -40],
+    "ancho_ms": 20
+  },
+  "medicion_st": {
+    "offset_normal_ms": 120,
+    "offset_taquicardia_ms": 100,
+    "umbral_taquicardia_bpm": 120,
+    "ancho_ms": 20
+  },
+  "suavizado_latidos": 5
+}
