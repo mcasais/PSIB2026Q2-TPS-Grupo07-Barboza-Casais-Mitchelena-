@@ -5,6 +5,9 @@ Uso:
 Salida:
     results/vfc_<base>.csv
 """
+#**EXPLICACIÓN:**
+# Este script analiza los cambios del sistema simpático y parasimpático mediante el análisis espectral de la serie de intervalos RR. Como los latidos no ocurren a tiempos perfectamente regulares, se utiliza el periodograma de Lomb-Scargle en lugar de una FFT común (nos evitamos interpolar para generar equidistancia).
+
 import json
 import sys
 import numpy as np
@@ -22,11 +25,13 @@ def calcular_bandas_lomb(t_rr, rr_s, p):
     if len(t_rr) < 15:
         return {'vlf': np.nan, 'lf': np.nan, 'hf': np.nan, 'lf_hf': np.nan}
         
-    frecs = np.linspace(0.0033, 0.40, 500)
+    frecs = np.linspace(0.0033, 0.40, 500) #Definimos 500 puntos a evaluar entre 0.0033Hz y 0.4Hz, que es el rango de frecuencias de interés para el análisis de VFC.
     angular = 2 * np.pi * frecs
     
-    pgram = lombscargle(t_rr, rr_s - np.mean(rr_s), angular, precenter=False)
+    pgram = lombscargle(t_rr, rr_s - np.mean(rr_s), angular, precenter=False) #Calcula la densidad de potencia espectral sobre la serie de tiempos de ocurrencia del RR (t_rr) sin necesidad de reinterpolar la señal.
     
+   
+    #Integración de las bandas: las bandas de frecuencia se definen en Hz y se integran sobre el periodograma para obtener la potencia en cada banda. Puedo obtener VLF (regulación hormonal), LF (regulación simpática) y HF (regulación parasimpática). Luego calculo la relación LF/HF, que es un indicador del balance simpático-parasimpático (HRV).
     b = p['bandas_hz']
     idx_vlf = (frecs >= b['vlf'][0]) & (frecs < b['vlf'][1])
     idx_lf = (frecs >= b['lf'][0]) & (frecs < b['lf'][1])
@@ -44,7 +49,7 @@ def calcular_bandas_lomb(t_rr, rr_s, p):
         'lf_hf': p_lf / (p_hf + 1e-8)
     }
 
-def procesar_vfc_episodio(ep, qrs_df, p, fs=250.0):
+def procesar_vfc_episodio(ep, qrs_df, p, fs=250.0): #Extraemos los intervalos RR del registro y descartamos latidos ectópicos o fisiológicamente imposibles (RR<0,4s o RR>1,8s). 
     reg, deriv = ep['registro'], ep['derivacion']
     sub_qrs = qrs_df[(qrs_df['registro'] == reg) & (qrs_df['derivacion'] == deriv)]
     
@@ -60,6 +65,7 @@ def procesar_vfc_episodio(ep, qrs_df, p, fs=250.0):
     
     res_ep = {'registro': reg, 'derivacion': deriv, 'inicio_s': ep['inicio_s']}
     
+    #Hacemos una división Temporal para evaluar los parámetros espectrales en tres momentos clave del episodio isquémico (antes, durante y después del evento) y así poder comparar estadísticamente cómo varía el tono simpático- parasimpático al desencadenarse el episodio ST.
     ventanas = {
         'antes': (ep['inicio_s'] + p['ventanas_s']['antes'][0], ep['inicio_s'] + p['ventanas_s']['antes'][1]),
         'durante': (ep['inicio_s'] + p['ventanas_s']['durante'][0], ep['inicio_s'] + p['ventanas_s']['durante'][1]),
@@ -91,4 +97,4 @@ if __name__ == '__main__':
     df_vfc = pd.DataFrame(filas)
     salida = RESULTS / f'vfc_{base}.csv'
     df_vfc.to_csv(salida, index=False, float_format='%.4g')
-    print(f'Paso 9 completado. Resultados guardados en {salida}')
+    print(f'Paso 9 completado. Resultados guardados en {salida}') #Guardamos los resultados de la VFC en un archivo CSV comprimido para su posterior análisis y visualización.
