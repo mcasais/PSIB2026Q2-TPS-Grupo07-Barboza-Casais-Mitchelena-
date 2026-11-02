@@ -191,10 +191,33 @@ if __name__ == '__main__':
     tabla.to_csv(salida, index=False)
 
     # Resumen para controlar contra la documentación de la base.
-    reales = tabla[~tabla['cambio_eje']]
-    print(f'{len(tabla)} episodios en {tabla["registro"].nunique()} registros')
-    print(reales.groupby(['tipo', 'signo']).size().to_string())
-    print(f'cambios de eje: {tabla["cambio_eje"].sum()}  '
-          f'fin inferido: {tabla["fin_inferido"].sum()}  '
-          f'sin pico: {tabla["desviacion_max_mv"].isna().sum()}')
-    print(f'Guardado en {salida}')
+    print("\n>>>>>>>>>>>   Paso 2   <<<<<<<<<<<")
+    reales = tabla[~tabla["cambio_eje"]]
+
+    conteo = pd.crosstab(
+        reales["signo"].map({"+": "Elevación (+)", "-": "Depresión (-)"}),
+        reales["tipo"],
+        margins=True, margins_name="Total")
+    conteo.index.name = None
+    conteo.columns.name = None
+
+    controles = pd.DataFrame({"Cantidad": {
+        "Episodios totales": len(tabla),
+        "Registros": tabla["registro"].nunique(),
+        "Cambios de eje": int(tabla["cambio_eje"].sum()),
+        "Fin inferido": int(tabla["fin_inferido"].sum()),
+        "Sin pico": int(tabla["desviacion_max_mv"].isna().sum()),
+    }})
+
+    columnas = ["registro", "nombre_derivacion", "tipo", "signo", "inicio_s",
+                "fin_s", "duracion_s", "desviacion_max_mv"]
+
+    print("\n --- Episodios por tipo y signo (sin cambios de eje) ---")
+    print(conteo.to_string())
+    print("\n --- Controles anotados ---")
+    print(controles.to_string())
+    print("\n --- Visualización de las anotaciones de los primeros 10 episodios ---")
+    print(tabla[columnas].head(10).round(2).to_string(index=False))
+    print("\nAnotaciones de Ground Truth (episodios ST y T) completadas")
+    print("Guardadas en results/episodios_edb.csv")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
