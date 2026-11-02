@@ -13,6 +13,8 @@ from scipy.interpolate import interp1d
 
 from episodios import leer_config
 from exploracion import mascara_descarte
+from filtrado import aplicar_cadena
+from filtrado import leer_parametros as leer_parametros_filtrado
 from qrs import leer_senal_mv
 from rutas import CONFIG, RESULTS, DATOS
 
@@ -66,7 +68,7 @@ def medir_st_latido(x_mv, fs, idx_qrs, p):
             
     return pd.DataFrame({'t_s': idx / fs, 'st_mv': st_mv, 'fc_bpm': fc_bpm})
 
-def procesar_registro(base, registro, latidos, ventanas, p):
+def procesar_registro(base, registro, latidos, ventanas, p, p_filt):
     cfg = leer_config(base)
     x_mv, fs, nombres = leer_senal_mv(base, registro)
     fs_grid = p['fs_remuestreo_hz']
@@ -82,7 +84,11 @@ def procesar_registro(base, registro, latidos, ventanas, p):
         
         #Se descartan los latidos que no cumplen con la calidad de ventana mínima. Se obtiene un vector booleano donde True indica que el latido debe ser descartado (por ruido o mala calidad de señal).    
         descartada = mascara_descarte(ventanas, registro, k, len(x_mv), fs)
-        df_st = medir_st_latido(x_mv[:, k], fs, idx_qrs, p)
+        # Filtrado con la cadena elegida en el paso 4 (misma función que se usó
+        # para compararlas). Splines usa los latidos y la máscara de descarte.
+        x_filt = aplicar_cadena(x_mv[:, k], fs, idx_qrs, descartada,
+                                p['cadena_filtrado'], p_filt)
+        df_st = medir_st_latido(x_filt, fs, idx_qrs, p)
         
         idx_validos = ~descartada[(df_st['t_s'] * fs).astype(int)]
         df_val = df_st[idx_validos].dropna()
@@ -114,6 +120,7 @@ if __name__ == '__main__':
     base = sys.argv[1] if len(sys.argv) > 1 else 'edb'
     cfg = leer_config(base)
     p = leer_parametros()
+    p_filt = leer_parametros_filtrado()
     registros = (DATOS / cfg['carpeta'] / cfg['archivo_registros']).read_text().split()
     
     latidos = pd.read_csv(RESULTS / f'qrs_{base}.csv.gz')
@@ -121,7 +128,7 @@ if __name__ == '__main__':
     
     res = []
     for r in registros:
-        df_r = procesar_registro(base, r, latidos, ventanas, p)
+        df_r = procesar_registro(base, r, latidos, ventanas, p, p_filt)
         if not df_r.empty:
             res.append(df_r)
             

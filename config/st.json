@@ -1,4 +1,5 @@
 {
+  "cadena_filtrado": "splines_notch_pb40",
   "fs_remuestreo_hz": 2.0,
   "isoelectrico": {
     "busqueda_ms": [-120, -40],
