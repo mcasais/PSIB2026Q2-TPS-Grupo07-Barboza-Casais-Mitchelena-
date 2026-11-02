@@ -181,6 +181,11 @@ def linea_base_splines(x_mv, fs, idx_qrs, descartada, p):
     """
     idx_iso, nivel_iso_mv, _ = nivel_isoelectrico(x_mv, fs, idx_qrs, p)
     usar = ~descartada[idx_iso]
+    if usar.sum() < 2:
+        # Derivación descartada casi entera (p. ej. e0148-0): no hay nodos
+        # suficientes para la spline. Se resta un nivel constante (mediana
+        # de todos los PR); esos latidos igual quedan fuera del análisis.
+        return np.full(len(x_mv), np.median(nivel_iso_mv))
     idx_iso, nivel_iso_mv = idx_iso[usar], nivel_iso_mv[usar]
     spline = CubicSpline(idx_iso, nivel_iso_mv, bc_type='natural')
     t = np.clip(np.arange(len(x_mv)), idx_iso[0], idx_iso[-1])
