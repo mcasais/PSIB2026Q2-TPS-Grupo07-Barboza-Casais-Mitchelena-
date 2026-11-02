@@ -15,9 +15,9 @@ def bajar(nombre, intentos=3):
         except Exception as e:
             print(f'  {nombre} falló (intento {i + 1}): {e}', flush=True)
     return False
-
+    
 # Para descargar solo algunos registros, comentá las dos líneas siguientes
-# y descomentá la lista de abajo.
+# y descomentá la lista de registros.
 bajar('RECORDS')
 registros = (DATA / 'RECORDS').read_text().split()
 # registros = ['e0103', 'e0104', 'e0105', 'e0106', 'e0107']
@@ -34,4 +34,6 @@ for k, r in enumerate(registros, 1):
 
 faltan = [r for r in registros
           if not all((DATA / f'{r}.{e}').exists() for e in EXT)]
-print('Completo' if not faltan else f'Faltan: {faltan}')
+print("\n>>>>>>>>>>>   Paso 1   <<<<<<<<<<<")
+print('Descarga de datos completada' if not faltan else f'Faltan: {faltan}')
+print(">>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<\n")
