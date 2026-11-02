@@ -1,0 +1,3 @@
+filtro,desplazamiento_max_mv,pendiente_max_mv_s,cumple
+pa_005,0.03332,0.004773,True
+pa_067,0.4331,0.8507,False
