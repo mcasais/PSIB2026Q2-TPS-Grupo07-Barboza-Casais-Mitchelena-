@@ -53,7 +53,7 @@ BIT_ILEGIBLE = {0: 0x10, 1: 0x20}
 SIMBOLOS_LATIDO = set('NLRBAaJSVrFejnE/fQ?')
 
 # Colores (paleta categórica validada: azul y naranja).
-COLOR_1 = '#2a78d6'
+COLOR_1 = "#2a78d6"
 COLOR_2 = '#eb6834'
 
 
@@ -142,48 +142,52 @@ def tiene_par_en_otra_derivacion(tabla):
 
 
 def describir(serie):
-    """Mediana [RIC] y rango de una serie numérica, como texto."""
+    """Mediana [IQR] y rango de una serie numérica, como texto."""
     q1, q2, q3 = serie.quantile([0.25, 0.5, 0.75])
-    return (f'mediana {q2:.1f} [RIC {q1:.1f}–{q3:.1f}], '
-            f'rango {serie.min():.1f}–{serie.max():.1f}  (n={serie.count()})')
+    return (f'mediana {q2:.1f} [IQR {q1:.1f}–{q3:.1f}], '
+            f'rango {serie.min():.1f}–{serie.max():.1f}')
 
 
 def resumen_episodios(tabla, registros):
     """Imprime la estadística de episodios y devuelve la cantidad de episodios
     ST y T (sin cambios de eje) por registro."""
-    print('\n=== Episodios ===')
+    print('\n==== Episodios ====')
     ejes = tabla[tabla['cambio_eje']]
     reales = tabla[~tabla['cambio_eje']].copy()
     print(f'{len(reales)} episodios (+ {len(ejes)} cambios de eje, que se '
           f'excluyen de la estadística)')
     print(reales.groupby(['tipo', 'signo']).size().rename('n').to_string())
 
-    print('\nEpisodios por nombre de derivación:')
+    print('\n==== Episodios por derivación y tipo ====')
     print(reales.pivot_table(index='nombre_derivacion', columns='tipo',
                              values='registro', aggfunc='count', fill_value=0)
           .to_string())
 
     reales['separacion_s'] = separacion_entre_episodios(reales)
     reales['par_otra_deriv'] = tiene_par_en_otra_derivacion(reales)
+    print("\n ==== Descripción estadística según el tipo de episodio ====")
     for tipo, grupo in reales.groupby('tipo'):
-        print(f'\n-- {tipo} --')
-        print(f'duración (s):              {describir(grupo["duracion_s"])}')
-        print(f'|desviación máx| (mV):     {describir(grupo["desviacion_max_mv"].abs())}')
-        print(f'separación del anterior (s): {describir(grupo["separacion_s"])}')
+        print(f'\n------------------------------- {tipo} -------------------------------')
+        print(f'Duración (s):                {describir(grupo["duracion_s"])}')
+        print(f'|Desviación máx| (mV):       {describir(grupo["desviacion_max_mv"].abs())}')
+        print(f'Separación del anterior (s): {describir(grupo["separacion_s"])}')
         for limite in (120, 300, 600):
             frac = (grupo['separacion_s'] < limite).sum() / len(grupo)
-            print(f'  episodios con < {limite} s desde el anterior: {frac:.0%}')
-        print(f'con episodio simultáneo en la otra derivación: '
+            print(f'  Episodios con duración < {limite} s desde el anterior: {frac:.0%}')
+        print(f'Con episodio simultáneo en la otra derivación: '
               f'{grupo["par_otra_deriv"].mean():.0%}')
-        print(f'fin inferido (sin cierre anotado): {grupo["fin_inferido"].sum()}')
+        print(f'Fin inferido (sin cierre anotado): {grupo["fin_inferido"].sum()}')
 
     por_registro = (reales.groupby(['registro', 'tipo']).size()
                     .unstack(fill_value=0)
                     .reindex(registros, fill_value=0)
                     .add_prefix('n_episodios_'))
-    for col in por_registro:
-        n_sin = (por_registro[col] == 0).sum()
-        print(f'registros sin episodios {col[-2:].strip("_")}: {n_sin} de {len(registros)}')
+    print("\n= Resgistros sin episodios =")
+    sin_episodios = pd.DataFrame({
+        "Tipo": [col[-2:].strip("_") for col in por_registro],
+        "Cantidad": [(por_registro[col] == 0).sum() for col in por_registro]
+    })
+    print(sin_episodios.to_string(index=False))
     return por_registro, reales
 
 
@@ -328,26 +332,35 @@ def resumen_calidad(ventanas):
     mayor que una limpia al azar) mide si la métrica separa los dos grupos:
     0,5 = no separa, 1 = separa perfecto. Se calcula con la U de Mann-Whitney.
     """
-    print('\n=== Calidad de señal ===')
+    print('\n========= Calidad de señal ==========')
     limpia = (ventanas['frac_ruidosa_anot'] == 0) & (ventanas['frac_ilegible_anot'] == 0)
     ruidosa = ventanas['frac_ruidosa_anot'] >= 0.5
     ilegible = ventanas['frac_ilegible_anot'] >= 0.5
-    print(f'{len(ventanas)} ventanas-derivación: {limpia.mean():.1%} limpias según '
+    print(f'{len(ventanas)} ventanas en total (10s): {limpia.mean():.1%} limpias según '
           f'la anotación, {ruidosa.mean():.1%} ruidosas (>= 50 % de la ventana), '
           f'{ilegible.mean():.1%} ilegibles')
-    print(f'ventanas con saturación: {(ventanas["muestras_saturadas"] > 0).sum()}')
+    print(f'Ventanas con saturación (del ADC): {(ventanas["muestras_saturadas"] > 0).sum()}')
 
     percentiles = [0.5, 0.9, 0.95, 0.99]
-    for metrica in ('deriva_pp_mv', 'ruido_af_mv'):
-        print(f'\n{metrica}')
-        for nombre, grupo in (('limpias', limpia), ('ruidosas', ruidosa),
-                              ('ilegibles', ilegible)):
-            q = ventanas.loc[grupo, metrica].quantile(percentiles)
-            print(f'  {nombre:9s} ' + '  '.join(f'p{int(pc * 100)}={v:.3f}'
-                                                 for pc, v in q.items()))
+    etiquetas = ["Mediana (p50)", "p90", "p95", "p99"]
+    nombres = {"deriva_pp_mv": "Deriva de la línea de base (mV pico a pico)",
+               "ruido_af_mv": "Ruido de alta frecuencia (mV)"}
+    grupos = {"Limpias": limpia, "Ruidosas": ruidosa, "Ilegibles": ilegible}
+
+    auc = {}
+    for metrica, descripcion in nombres.items():
+        tabla = pd.DataFrame(
+            {grupo: ventanas.loc[mascara, metrica].quantile(percentiles).values
+             for grupo, mascara in grupos.items()},
+            index=etiquetas).T
+        tabla.index.name = descripcion
+        print(tabla.round(3).to_string())
+
         u = mannwhitneyu(ventanas.loc[ruidosa, metrica],
                          ventanas.loc[limpia, metrica]).statistic
-        print(f'  AUC ruidosa vs limpia: {u / (ruidosa.sum() * limpia.sum()):.2f}')
+        auc[descripcion] = u / (ruidosa.sum() * limpia.sum())
+
+    print(pd.DataFrame({"AUC (ruidosa vs limpia)": auc}).round(2).to_string())
 
 
 def figura_calidad(ventanas, salida):
@@ -438,7 +451,7 @@ def resumen_por_registro(ventanas):
     return ancho
 
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
     base = sys.argv[1] if len(sys.argv) > 1 else 'edb'
     cfg = leer_config(base)
     p = leer_parametros()
@@ -446,18 +459,18 @@ if __name__ == '__main__':
     carpeta_fig = RESULTS / 'figuras'
     carpeta_fig.mkdir(parents=True, exist_ok=True)
 
+    print(">>>>>>>>>>>   Paso 3   <<<<<<<<<<<")
     # 1. Derivaciones.
     info = pd.DataFrame([info_registro(base, r) for r in registros]).set_index('registro')
-    print('=== Derivaciones ===')
-    print('Combinaciones (deriv_0, deriv_1):')
+    print('======= Derivaciones registradas =======')
+    print('Combinaciones:')
     print(info.groupby(['deriv_0', 'deriv_1']).size()
           .sort_values(ascending=False).to_string())
     presencia = pd.concat([info['deriv_0'], info['deriv_1']]).value_counts()
-    print('\nRegistros en que aparece cada derivación:')
+    print('\nCantidad de registros en que aparece cada derivación:')
     print(presencia.to_string())
     print(f'\nEdad: {describir(info["edad"])};  sexo: '
           f'{info["sexo"].value_counts().to_dict()}')
-
     # 2. Episodios.
     tabla = pd.read_csv(RESULTS / f'episodios_{base}.csv')
     por_registro, reales = resumen_episodios(tabla, registros)
@@ -481,4 +494,63 @@ if __name__ == '__main__':
         salida_reg, float_format='%.4g')
     salida_vent = RESULTS / f'calidad_ventanas_{base}.csv.gz'
     ventanas.to_csv(salida_vent, index=False, float_format='%.4g')
-    print(f'\nGuardado en {salida_reg}, {salida_vent} y {carpeta_fig}')
+    print(f'\nGuardado en {salida_reg}, {salida_vent} y {carpeta_fig}')'''
+
+if __name__ == "__main__":
+    base = sys.argv[1] if len(sys.argv) > 1 else "edb"
+    cfg = leer_config(base)
+    p = leer_parametros()
+    registros = (DATOS / cfg["carpeta"] / cfg["archivo_registros"]).read_text().split()
+    carpeta_fig = RESULTS / "figuras"
+    carpeta_fig.mkdir(parents=True, exist_ok=True)
+
+    # 1. Derivaciones.
+    print(">>>>>>>>>>>   Paso 3: exploración de datos   <<<<<<<<<<<")
+    print('======= Derivaciones registradas =======')
+    info = pd.DataFrame([info_registro(base, r) for r in registros]).set_index("registro")
+
+    combinaciones = (info.groupby(["deriv_0", "deriv_1"]).size()
+                     .sort_values(ascending=False)
+                     .rename("Registros").reset_index()
+                     .rename(columns={"deriv_0": "Derivación 0",
+                                      "deriv_1": "Derivación 1"}))
+    print(combinaciones.to_string(index=False))
+
+    presencia = (pd.concat([info["deriv_0"], info["deriv_1"]]).value_counts()
+                 .rename("Registros").rename_axis("Derivación").reset_index())
+    print("\n===== Cantidad de veces que aparece cada una =====")
+    print(presencia.to_string(index=False))
+
+    print("\n===== Datos clínicos =====")
+    clinicos = {"Edad": describir(info["edad"])}
+    for sexo, cantidad in info["sexo"].value_counts().items():
+        clinicos["Sexo " + str(sexo)] = cantidad
+    print(pd.DataFrame({"Valor": clinicos}).to_string())
+
+    # 2. Episodios.
+    tabla = pd.read_csv(RESULTS / f"episodios_{base}.csv")
+    por_registro, reales = resumen_episodios(tabla, registros)
+    figura_episodios(reales, carpeta_fig / f"exploracion_episodios_{base}.png")
+    print("\nFIGURA exploracion_episodios: muestra la distribución de duración y desviación máxima de los episodios anotados, separando ST y T.")
+
+    # 3. Calidad.
+    ventanas = pd.concat([calidad_registro(base, r, p) for r in registros],
+                         ignore_index=True)
+    resumen_calidad(ventanas)
+    print("\nFIGURA exploracion_calidad: muestra la distribución de deriva y ruido de alta frecuencia, separando ventanas anotadas como limpias y como ruidosas o ilegibles.")
+    ventanas = marcar_descarte(ventanas, p)
+    print("\n===== Ventanas descartadas por saturación =====")
+    frac_descartadas = ventanas["descartar"].mean()
+    print(pd.DataFrame({"Valor": {"Ventanas descartadas": f"{frac_descartadas:.1%}"}}).to_string())
+
+    frac_por_deriv = ventanas.groupby(["registro", "derivacion"])["descartar"].mean()
+    muy_descartadas = frac_por_deriv[frac_por_deriv > 0.5].round(2)
+    print(muy_descartadas.rename("Fracción descartada").reset_index().to_string(index=False))
+    figura_calidad(ventanas, carpeta_fig / f"exploracion_calidad_{base}.png")
+
+    # Guardado.
+    salida_reg = RESULTS / f"registros_{base}.csv"
+    info.join(por_registro).join(resumen_por_registro(ventanas)).to_csv(
+        salida_reg, float_format="%.4g")
+    salida_vent = RESULTS / f"calidad_ventanas_{base}.csv.gz"
+    ventanas.to_csv(salida_vent, index=False, float_format="%.4g")
