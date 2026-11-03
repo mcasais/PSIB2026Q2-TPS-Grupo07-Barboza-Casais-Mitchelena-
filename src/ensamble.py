@@ -8,7 +8,8 @@ Salida:
 """
 
 #**EXPLICACIÓN:**
-# Este script construye un perfil promedio (ensamble) para observar cómo evoluciona el nivel del segmento ST antes, durante y después de un episodio isquémico real. Para comparar episodios de distintos pacientes y duraciones, se alinean todos los eventos anotados en t=0s (el inicio del episodio) y resta a cada uno su nivel de ST basal previo.
+# Este script construye un perfil promedio (ensamble) para observar cómo evoluciona el nivel del segmento ST antes, durante y después de un episodio isquémico real. 
+# Para comparar episodios de distintos pacientes y duraciones, se alinean todos los eventos anotados en t=0s (el inicio del episodio) y resta a cada uno su nivel de ST basal previo.
 
 import sys
 import numpy as np
@@ -44,7 +45,7 @@ def construir_ensamble(st_df, gt_df, t_pre=300, t_post=900, fs=2.0): #Definimos 
             
     matriz = np.array(matriz_eps)
     
-    #Para cada instante de tiempo relativo, calcula la mediana y los percentiles 25 y 75 de todos los episodios alineados. Esto nos da una curva promedio (mediana) y un rango intercuartílico (RIC) que representa la variabilidad entre pacientes.
+    # Para cada instante de tiempo relativo, calcula la mediana y los percentiles 25 y 75 de todos los episodios alineados. Esto nos da una curva promedio (mediana) y un rango intercuartílico (RIC) que representa la variabilidad entre pacientes.
     mediana = np.nanmedian(matriz, axis=0)
     q25 = np.nanpercentile(matriz, 25, axis=0)
     q75 = np.nanpercentile(matriz, 75, axis=0)
@@ -56,7 +57,7 @@ def construir_ensamble(st_df, gt_df, t_pre=300, t_post=900, fs=2.0): #Definimos 
         'st_q75_mv': q75
     })
 
-#Guarda el ensamble en un CSV y genera una figura con la mediana y el rango intercuartílico (RIC) de la serie temporal de ST alineada al inicio del episodio. La figura muestra cómo varía el nivel de ST antes, durante y después del evento isquémico, permitiendo visualizar patrones comunes entre pacientes.
+# Guarda el ensamble en un CSV y genera una figura con la mediana y el rango intercuartílico (RIC) de la serie temporal de ST alineada al inicio del episodio. La figura muestra cómo varía el nivel de ST antes, durante y después del evento isquémico, permitiendo visualizar patrones comunes entre pacientes.
 if __name__ == '__main__':
     base = sys.argv[1] if len(sys.argv) > 1 else 'edb'
     

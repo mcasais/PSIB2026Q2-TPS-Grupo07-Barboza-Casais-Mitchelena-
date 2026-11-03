@@ -1,4 +1,4 @@
-"""Detección de QRS con Pan-Tompkins (paso 5, adelantado para el filtrado).
+"""Detección de QRS con Pan-Tompkins.
 
 Etapas (Pan y Tompkins 1985, IEEE Trans Biomed Eng 32:230):
     1. Pasabanda: deja la energía del QRS y atenúa P, T, deriva y ruido
@@ -140,7 +140,8 @@ def umbralizar(integrada, derivada, fs, p):
         # detector no se recupera nunca (pasaba en e0611). Si pasan más de
         # `reinicio_sin_qrs_s` sin QRS, se vuelve a aprender con los
         # últimos segundos, como al principio del registro.
-        if qrs and pk - qrs[-1] > n_reinicio:
+        referencia = qrs[-1] if qrs else 0
+        if pk - referencia > n_reinicio:
             tramo = integrada[max(pk - n_apr, 0):pk + 1]
             spki = 0.25 * tramo.max()
             npki = 0.5 * tramo.mean()
@@ -268,38 +269,53 @@ if __name__ == '__main__':
     p = leer_parametros()
     registros = (DATOS / cfg['carpeta'] / cfg['archivo_registros']).read_text().split()
     ventanas = pd.read_csv(RESULTS / f'calidad_ventanas_{base}.csv.gz')
-
+    print("\n>>>>>>>>>>>   Paso 4: detección del QRS   <<<<<<<<<<<\n")
+    print("    ************** Desempeño del detector por registro ************** ")
     latidos, validacion = [], []
     for registro in registros:
         lat, val = procesar_registro(base, registro, ventanas, p)
         latidos.append(lat)
         validacion.extend(val)
         print(f'  {registro}: ' + '  '.join(
-            f'd{v["derivacion"]} Se={v["sensibilidad"]:.3f} VPP={v["vpp"]:.3f}'
+            f'd{v["derivacion"]} Recall={v["sensibilidad"]:.3f} Precisión={v["vpp"]:.3f}'
             for v in val if v['alcance'] == 'todo'))
     latidos = pd.concat(latidos, ignore_index=True)
     validacion = pd.DataFrame(validacion)
 
     # Resumen: totales agregados (suma de VP, FP y FN de todos los registros,
     # como en la norma ANSI/AAMI EC57) y la distribución por derivación.
-    print('\n=== Validación Pan-Tompkins (tolerancia '
-          f'{p["tolerancia_validacion_s"] * 1000:.0f} ms) ===')
-    for alcance, grupo in validacion.groupby('alcance'):
-        vp, fp, fn = grupo[['vp', 'fp', 'fn']].sum()
-        print(f'{alcance:16s} Se={vp / (vp + fn):.4f}  VPP={vp / (vp + fp):.4f}  '
-              f'(VP={vp}, FP={fp}, FN={fn});  Se por derivación: mediana '
-              f'{grupo["sensibilidad"].median():.4f}, mínima '
-              f'{grupo["sensibilidad"].min():.3f};  VPP mínimo '
-              f'{grupo["vpp"].min():.3f}')
+    print('\n *********** Desempeño global de Pan-Tompkins (tolerancia '
+          f'{p["tolerancia_validacion_s"] * 1000:.0f} ms) **********')
+    filas = []
+    for alcance, grupo in validacion.groupby("alcance"):
+        vp, fp, fn = grupo[["vp", "fp", "fn"]].sum()
+        filas.append({
+            "Alcance": alcance,
+            "Recall": vp / (vp + fn),
+            "Precisión": vp / (vp + fp),
+            "VP": vp,
+            "FP": fp,
+            "FN": fn,
+            "Recall mediano por derivación": grupo["sensibilidad"].median(),
+            "Recall mínimo": grupo["sensibilidad"].min(),
+            "Precisión mínima": grupo["vpp"].min(),
+        })
+    print(pd.DataFrame(filas).round(4).to_string(index=False))
+
+    print('\n****** Derivaciones con peor desempeño (sin descartadas) *****')
     peores = (validacion[validacion['alcance'] == 'sin_descartadas']
-              .assign(f1=lambda d: 2 * d['vp'] / (2 * d['vp'] + d['fp'] + d['fn']))
-              .nsmallest(5, 'f1'))
-    print('\nDerivaciones con peor desempeño (sin descartadas):')
+            .assign(f1=lambda d: 2 * d['vp'] / (2 * d['vp'] + d['fp'] + d['fn']))
+            .nsmallest(5, 'f1'))
+    nombres = {"registro": "Registro", "nombre_derivacion": "Derivación", "sensibilidad": "Recall", "vpp": "Precisión"}
     print(peores[['registro', 'nombre_derivacion', 'sensibilidad', 'vpp']]
+          .rename(columns=nombres)
           .to_string(index=False, float_format='%.3f'))
 
     salida_lat = RESULTS / f'qrs_{base}.csv.gz'
     latidos.to_csv(salida_lat, index=False)
     salida_val = RESULTS / f'validacion_qrs_{base}.csv'
     validacion.to_csv(salida_val, index=False, float_format='%.4f')
-    print(f'\nGuardado en {salida_lat} y {salida_val}')
+    print("\nDetección del QRS completada. Resultados guardados en:")
+    print("\nqrs_edb.csv.gz: latidos detectados (un latido por fila)")
+    print("\nvalidacion_qrs_edb.csv: Recall y Precisión por registro y derivación")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")

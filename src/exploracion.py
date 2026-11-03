@@ -537,9 +537,8 @@ if __name__ == "__main__":
     ventanas = pd.concat([calidad_registro(base, r, p) for r in registros],
                          ignore_index=True)
     resumen_calidad(ventanas)
-    print("\nFIGURA exploracion_calidad: muestra la distribución de deriva y ruido de alta frecuencia, separando ventanas anotadas como limpias y como ruidosas o ilegibles.")
     ventanas = marcar_descarte(ventanas, p)
-    print("\n===== Ventanas descartadas por saturación =====")
+    print("\n===== Ventanas descartadas =====")
     frac_descartadas = ventanas["descartar"].mean()
     print(pd.DataFrame({"Valor": {"Ventanas descartadas": f"{frac_descartadas:.1%}"}}).to_string())
 
@@ -547,7 +546,9 @@ if __name__ == "__main__":
     muy_descartadas = frac_por_deriv[frac_por_deriv > 0.5].round(2)
     print(muy_descartadas.rename("Fracción descartada").reset_index().to_string(index=False))
     figura_calidad(ventanas, carpeta_fig / f"exploracion_calidad_{base}.png")
-
+    print("\nFIGURA exploracion_calidad_edb: muestra la distribución de deriva y ruido de alta frecuencia, separando ventanas anotadas como limpias y como ruidosas o ilegibles.")
+    print("\nTABLA calidad_ventanas_edb.csv.gz: contiene una fila por cada ventana de 10 segundos y derivación que muestra las métricas de calidad extraídas")
+    print(">>>>>>>>>>>>>>><<<<<<<<<<<<<<<")
     # Guardado.
     salida_reg = RESULTS / f"registros_{base}.csv"
     info.join(por_registro).join(resumen_por_registro(ventanas)).to_csv(
