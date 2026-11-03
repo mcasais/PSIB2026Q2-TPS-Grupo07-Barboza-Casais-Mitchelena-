@@ -1,4 +1,6 @@
-"""Exploración y acondicionamiento de la base (paso 3).
+""" |||||||||||| 3ER PASO: EXPLORACIÓN DE LA BASE ||||||||||||
+
+Exploración y acondicionamiento de la base.
 
 Tres partes:
     1. Derivaciones y datos clínicos de cada registro (del .hea).

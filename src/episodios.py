@@ -1,4 +1,6 @@
-"""Parser de episodios ST y T anotados (ground truth del paso 2).
+""" |||||||||||| 2DO PASO: PARSEAR ANOTACIONES DE EPISODIOS |||||||||||| 
+
+Parser de episodios ST y T anotados.
 
 Formato de las anotaciones (documentación de la EDB, annotations.shtml):
     '(ST0+'      inicio del episodio: tipo ST, derivación 0, elevación

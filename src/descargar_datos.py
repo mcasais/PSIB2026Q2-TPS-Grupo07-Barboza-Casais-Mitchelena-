@@ -1,3 +1,5 @@
+''' |||||||||||| 1ER PASO: DESCARGA LA BASE DE DATOS |||||||||||| '''
+
 import urllib.request
 from rutas import DATA
 

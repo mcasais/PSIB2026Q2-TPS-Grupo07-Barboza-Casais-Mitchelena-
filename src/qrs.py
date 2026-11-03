@@ -1,4 +1,6 @@
-"""Detección de QRS con Pan-Tompkins.
+""" |||||||||||| 4TO PASO: PAN Y TOMPKINS ||||||||||||
+
+Detección de QRS con Pan-Tompkins.
 
 Etapas (Pan y Tompkins 1985, IEEE Trans Biomed Eng 32:230):
     1. Pasabanda: deja la energía del QRS y atenúa P, T, deriva y ruido

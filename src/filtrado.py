@@ -1,4 +1,6 @@
-"""Filtrado de la línea de base y del ruido, y su efecto sobre el ST (paso 4).
+""" |||||||||||| 5TO PASO: FILTRADO ||||||||||||
+
+Filtrado de la línea de base y del ruido, y su efecto sobre el ST.
 
 Banco de filtros (todos de fase cero, para no correr ni deformar el ST):
     pa_005    pasaaltos Butterworth de 0,05 Hz. Es el corte que recomienda
@@ -572,17 +574,22 @@ def figura_respuestas(fs, impulsos, p, salida):
     ejes[1].set_title('Pasabajos y ranura', loc='left')
     ejes[1].legend(frameon=False)
 
-    lim = p['impulso']['desplazamiento_max_mv']
-    ejes[2].axhspan(-lim, lim, color='#e6e6e6', label=f'±{lim} mV (AHA/IEC)')
-    for nombre, color in (('pa_005', COLOR_1), ('pa_067', COLOR_2)):
+    lim = p["impulso"]["desplazamiento_max_mv"]
+    dur = p["impulso"]["duracion_s"]
+    ejes[2].axhspan(-lim, lim, color="#e6e6e6", label=f"±{lim} mV (AHA/IEC)")
+    ejes[2].axvspan(0, dur, color="#555555", alpha=0.45,
+                    label="Impulso (3 mV, 100 ms)")
+    for nombre, color in (("pa_005", COLOR_1), ("pa_067", COLOR_2)):
         t_s, y = impulsos[nombre]
+        y = np.where((t_s >= -0.01) & (t_s <= dur + 0.01), np.nan, y)
         ejes[2].plot(t_s, y, color=color, linewidth=2, label=nombre)
     ejes[2].set_xlim(-1, 3)
     ejes[2].set_ylim(-0.4, 0.4)
-    ejes[2].set_xlabel('Tiempo desde el impulso (s)')
-    ejes[2].set_ylabel('Salida (mV)  [recortada]')
-    ejes[2].set_title('Impulso 3 mV × 100 ms', loc='left')
-    ejes[2].legend(frameon=False, loc='lower right')
+    ejes[2].set_xlabel("Tiempo desde el impulso (s)")
+    ejes[2].set_ylabel("Salida (mV)  [recortada]")
+    ejes[2].set_title("Impulso 3 mV × 100 ms", loc="left")
+    ejes[2].legend(frameon=False, loc="lower right")
+
     for eje in ejes:
         estilo_eje(eje)
     fig.tight_layout()
@@ -626,7 +633,7 @@ def figura_ejemplo(base, latidos, ventanas, p, salida):
 def grafico_puntos(eje, tabla, columna, cadenas, titulo):
     """Gráfico de puntos horizontal: una fila por cadena, un punto por
     condición (sin ruido en azul, con ruido en naranja)."""
-    for k, (condicion, color) in enumerate((('sin_ruido', COLOR_1), ('con_ruido', COLOR_2))):
+    for k, (condicion, color) in enumerate((('sin_ruido', "navy"), ('con_ruido', "red"))):
         valores = (tabla[tabla['condicion'] == condicion]
                    .groupby('cadena')[columna].mean().reindex(cadenas))
         eje.plot(valores, np.arange(len(cadenas)) + (k - 0.5) * 0.2, 'o',
@@ -646,15 +653,70 @@ def figura_sintetica(tabla, p, salida):
     tabla = tabla.assign(error_cambio_abs_mv=tabla['error_cambio_mv'].abs())
     grafico_puntos(ejes[0], tabla, 'rmse_mv', cadenas, 'RMSE del ST latido a latido (mV)')
     grafico_puntos(ejes[1], tabla, 'error_cambio_abs_mv', cadenas,
-                   f'|error| del cambio de ST en el episodio (mV)\n'
-                   f'[verdadero: {p["sintetica"]["episodio"]["amplitud_mv"]} mV]')
+                   f'|error| del cambio de ST en el episodio (mV)\n')
     for eje in ejes:
         eje.set_xlim(left=0)
     ejes[1].legend(frameon=False, loc='lower right')
+    fig.suptitle("Filtrado de la señal simulada, donde el cambio en ST es -0,2 mV")
     fig.tight_layout()
     fig.savefig(salida, dpi=150)
     plt.close(fig)
 
+def figura_simulada(base, latidos, ventanas, episodios, fs, p, salida):
+    """Cómo es la señal sintética: (a) el latido plantilla sin y con el
+    desplazamiento del ST, (b) un tramo de señal sin y con ruido durante la
+    meseta del episodio y (c) el perfil temporal del episodio (trapecio).
+    Usa la primera plantilla y la repetición 0."""
+    s = p["sintetica"]
+    ep = s["episodio"]
+    amp = str(ep["amplitud_mv"]).replace(".", ",")
+    t_med = p["medicion_st"]["desde_r_ms"]
+    registro, derivacion = s["plantillas"][0]
+    plantilla, idx_r = plantilla_limpia(base, registro, derivacion, latidos,
+                                        ventanas, episodios, p)
+    sint = senal_sintetica(plantilla, idx_r, fs, p, np.random.default_rng(0))
+
+    d0 = ms_a_muestras(s["desplazamiento_st_ms"][0], fs)
+    d1 = ms_a_muestras(s["desplazamiento_st_ms"][1], fs)
+    con_episodio = plantilla.copy()
+    con_episodio[idx_r + d0:idx_r + d1] += ep["amplitud_mv"] * tukey(d1 - d0, 0.2)
+    t_ms = (np.arange(len(plantilla)) - idx_r) / fs * 1000
+
+    fig, ejes = plt.subplots(1, 3, figsize=(14, 3.8))
+
+    ejes[0].plot(t_ms, plantilla, color=COLOR_1, linewidth=2, label="Latido plantilla")
+    ejes[0].plot(t_ms, con_episodio, color=COLOR_2, linewidth=2,
+                 label=f"Con episodio ({amp} mV)")
+    ejes[0].axvline(t_med, color="#999999", linestyle="--", linewidth=1,
+                    label=f"Medición del ST (R + {t_med} ms)")
+    ejes[0].set_xlabel("Tiempo desde R (ms)")
+    ejes[0].set_ylabel("mV")
+    ejes[0].set_title("Latido simulado", loc="left")
+    ejes[0].legend(frameon=False, fontsize=8)
+
+    t0 = ep["inicio_s"] + ep["rampa_s"] + 20
+    tramo = (sint["t_s"] >= t0) & (sint["t_s"] < t0 + 8)
+    ejes[1].plot(sint["t_s"][tramo], sint["x_ruidosa"][tramo], color=COLOR_2,
+                 linewidth=0.8, label="Con ruido")
+    ejes[1].plot(sint["t_s"][tramo], sint["x_limpia"][tramo], color=COLOR_1,
+                 linewidth=1.2, label="Sin ruido")
+    ejes[1].set_xlabel("Tiempo (s)")
+    ejes[1].set_ylabel("mV")
+    ejes[1].set_title("Tramo de 8 s durante el episodio", loc="left")
+    ejes[1].legend(frameon=False, fontsize=8)
+
+    ejes[2].plot(sint["idx_qrs"] / fs, sint["desplazamiento_mv"],
+                 color=COLOR_1, linewidth=2)
+    ejes[2].axhline(0, color="#999999", linewidth=0.8)
+    ejes[2].set_xlabel("Tiempo (s)")
+    ejes[2].set_ylabel("Desplazamiento del ST (mV)")
+    ejes[2].set_title("Perfil del episodio simulado", loc="left")
+
+    for eje in ejes:
+        estilo_eje(eje)
+    fig.tight_layout()
+    fig.savefig(salida, dpi=150)
+    plt.close(fig)
 
 def figura_real(tabla_ep, resumen, p, salida):
     """(a) desviación medida vs anotada con pa_005 y pa_067; (b) error
@@ -700,27 +762,47 @@ if __name__ == '__main__':
     _, fs, _ = leer_senal_mv(base, registros[0])
     carpeta_fig = RESULTS / 'figuras'
     carpeta_fig.mkdir(parents=True, exist_ok=True)
+    print("\n>>>>>>>>>>>   Paso 5: filtrado   <<<<<<<<<<<\n")
 
     # 1. Impulso.
-    print('=== Prueba de impulso (AHA/IEC) ===')
+    print(" +++++++++++ Prueba de impulso para filtros pasaaltos (norma AHA/IEC) +++++++++++ ")
+    ncols = {"pa_005": "Pasaaltos con fc=0,05Hz",
+              "pa_067": "Pasaaltos con fc=0,67Hz"}
     resultados, impulsos = [], {}
-    for nombre in ('pa_005', 'pa_067'):
+    for nombre in ncols:
         res, impulsos[nombre] = prueba_impulso(nombre, fs, p)
         resultados.append(res)
     tabla_imp = pd.DataFrame(resultados)
-    print(tabla_imp.to_string(index=False, float_format='%.3f'))
-    figura_respuestas(fs, impulsos, p, carpeta_fig / f'filtrado_respuestas_{base}.png')
+
+    #Visualización de la tabla
+    vista = tabla_imp.copy()
+    vista["filtro"] = vista["filtro"].map(ncols)
+    vista["cumple"] = vista["cumple"].map({True: "Sí", False: "No"})
+    vista = vista.rename(columns={
+        "filtro": "Filtro",
+        "desplazamiento_max_mv": "Desplazamiento máx. (mV) [límite 0,1]",
+        "pendiente_max_mv_s": "Pendiente máx. (mV/s) [límite 0,3]",
+        "cumple": "Cumple la norma"})
+    print(vista.to_string(index=False, float_format="%.3f"))
+    figura_respuestas(fs, impulsos, p, carpeta_fig / f"filtrado_respuestas_{base}.png")
+    print(f"\nFIGURA filtrado_respuestas_{base}.png: muestra la magnitud de los filtros pasaaltos, el pasabajos y el notch, y la respuesta al pulso de los pasaaltos.")
 
     # 2. Sintética.
-    print('\n=== Señal sintética ===')
+    print('\n ++++++++++++++ Prueba sobre la señal sintética ++++++++++++++ ')
+    print("La siguiente tabla resume ")
     tabla_sint = evaluar_sintetica(base, latidos, ventanas, episodios, fs, p)
     print(tabla_sint.groupby(['condicion', 'cadena'], sort=False)
           [['sesgo_mv', 'rmse_mv', 'error_cambio_mv']].mean()
           .to_string(float_format='%.4f'))
+    figura_simulada(base, latidos, ventanas, episodios, fs, p,
+                carpeta_fig / f"filtrado_simulada_{base}.png")
     figura_sintetica(tabla_sint, p, carpeta_fig / f'filtrado_sintetica_{base}.png')
+    print(f"\nFIGURA filtrado_simulada_{base}.png: muestra la señal sintética, con y sin ruido, y el perfil temporal del episodio de ST.")
 
+    print(f"\nFIGURA filtrado_sintetica_{base}.png: muestra el RMSE del ST latido a latido y el error del cambio de ST durante el episodio, por cadena, sin y con ruido.")
+    
     # 3. Real.
-    print('\n=== Señal real ===')
+    print("\n +++++++ Detección de episodios sobre la señal real +++++++ ")
     filas_ep, filas_ruido = [], []
     for registro in registros:
         ep, ru = evaluar_real(base, registro, latidos, ventanas, episodios, p)
@@ -730,12 +812,16 @@ if __name__ == '__main__':
     tabla_ep = pd.DataFrame(filas_ep)
     tabla_ruido = pd.DataFrame(filas_ruido)
     resumen = resumen_real(tabla_ep, tabla_ruido)
+    print('\n ++++++++++++++ Filtrado sobre la señal real ++++++++++++++ ')
     print(resumen.to_string(float_format='%.3f'))
     figura_real(tabla_ep, resumen, p, carpeta_fig / f'filtrado_real_{base}.png')
+    print(f"\nFIGURA filtrado_real_{base}.png: muestra la desviación medida vs anotada, el error absoluto medio y el ruido latido a latido, por cadena.")
     figura_ejemplo(base, latidos, ventanas, p, carpeta_fig / f'filtrado_ejemplo_{base}.png')
-
+    print(f"\nFIGURA filtrado_ejemplo_{base}.png: muestra un tramo de señal real con deriva, cruda y después de cada cadena (un panel por cadena, mismo eje vertical).")
+    
     tabla_imp.to_csv(RESULTS / f'filtrado_impulso_{base}.csv', index=False, float_format='%.4g')
     tabla_sint.to_csv(RESULTS / f'filtrado_sintetica_{base}.csv', index=False, float_format='%.4g')
     tabla_ep.to_csv(RESULTS / f'filtrado_real_episodios_{base}.csv', index=False, float_format='%.4g')
     tabla_ruido.to_csv(RESULTS / f'filtrado_real_ruido_{base}.csv', index=False, float_format='%.4g')
-    print(f'\nGuardado en {RESULTS} y {carpeta_fig}')
+    print("\nFiltrado completado. Resultados guardados en la carpeta 'results'.")
+    print(">>>>>>>>>>>>>>><<<<<<<<<<<<<<<")
