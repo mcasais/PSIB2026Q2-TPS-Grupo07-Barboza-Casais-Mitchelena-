@@ -334,4 +334,3 @@ if __name__ == "__main__":
                     carpeta_fig / f"st_serie_ejemplo_{base}.png")
     print("Serie ST recuperada. Resultados guardados en st_serie_edb.csv.gz")
     print(">>>>>>>>>>>>>>><<<<<<<<<<<<<<<")
-

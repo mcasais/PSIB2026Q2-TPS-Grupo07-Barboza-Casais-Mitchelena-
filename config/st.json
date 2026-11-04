@@ -9,7 +9,13 @@
     "offset_normal_ms": 120,
     "offset_taquicardia_ms": 100,
     "umbral_taquicardia_bpm": 120,
-    "ancho_ms": 20
+    "ancho_ms": 20,
+    "n_latidos_fc": 10,
+    "rr_max_s": 2.5
   },
-  "suavizado_latidos": 5
+  "suavizado_latidos": 5,
+  "max_hueco_s": 5,
+  "simbolos_validos": "NLRB",
+  "tolerancia_latido_s": 0.15,
+  "ejemplo": {"registro": "e0103", "derivacion": 0}
 }

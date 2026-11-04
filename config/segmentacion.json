@@ -1,8 +1,14 @@
 {
-  "ventana_ref_s": 300,
-  "ventana_test_s": 60,
-  "paso_s": 2.0,
-  "umbral_disimilitud_eta": 1.8,
-  "duracion_min_episodio_s": 30,
-  "tolerancia_coincidencia_s": 60.0
+"ventanas_ref_s": [30, 45, 60, 90, 120],
+"ventanas_test_s": [45, 60, 90, 120],
+  "fraccion_valida_min": 0.5,
+  "desvio_min_mv": 0.02,
+  "cambio_min_mv": 0.1,
+  "desvio_nivel_min_mv": 0.05,
+  "separacion_min_limites_s": 60,
+  "duracion_min_episodio_s": 28,
+  "tolerancia_inicio_s": 60,
+  "umbrales_eta": [1, 1.5, 2, 3, 4, 5, 6, 8],
+  "semilla_division": 0
 }
+
