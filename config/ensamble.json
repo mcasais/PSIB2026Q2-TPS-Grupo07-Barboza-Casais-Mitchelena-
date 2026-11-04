@@ -1,0 +1,8 @@
+{
+  "t_pre_s": 300,
+  "t_post_s": 900,
+  "basal_ini_s": -300,
+  "basal_fin_s": -120,
+  "fraccion_valida_basal": 0.5,
+  "n_min_por_instante": 10
+}
