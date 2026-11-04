@@ -1,0 +1,3 @@
+,Episodios anotados,Episodios detectados,Aciertos,Recall,Recall (alcanzables),Precisión,F1,"Error de inicio, mediana (s)","Error de inicio, RIC (s)","Error de fin, mediana (s)","Error de fin, RIC (s)"
+Ajuste,191,84,56,0.2932,0.2932,0.6667,0.4073,-6.098,23.29,-18.82,35.89
+Evaluación,177,74,45,0.2542,0.2542,0.6081,0.3586,-1.596,24.85,-23.24,73.47
