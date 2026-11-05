@@ -1,0 +1,9 @@
+Signo,Métrica,Eventos,Registros,chi2,p,W de Kendall,p (Holm)
+Elevación de ST,FC media (lpm),32,13,22.5625,1.26071e-05,0.352539,5.04284e-05
+Elevación de ST,RMSSD (ms),32,13,9.1875,0.0101149,0.143555,0.0202297
+Elevación de ST,HF (ms²),32,13,13.5625,0.00113486,0.211914,0.00340457
+Elevación de ST,LF/HF,32,13,1.1875,0.552252,0.0185547,0.552252
+Depresión de ST,FC media (lpm),66,35,51.1212,7.92811e-12,0.387282,3.17125e-11
+Depresión de ST,RMSSD (ms),66,35,24.3636,5.12275e-06,0.184573,1.53683e-05
+Depresión de ST,HF (ms²),66,35,20.3939,3.72831e-05,0.1545,7.45663e-05
+Depresión de ST,LF/HF,66,35,2.93939,0.229995,0.0222681,0.229995

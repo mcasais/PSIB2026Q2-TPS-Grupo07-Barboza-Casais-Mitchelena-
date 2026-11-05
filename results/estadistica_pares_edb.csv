@@ -1,0 +1,25 @@
+Signo,Métrica,Eventos,Registros,Comparación,W,p,Biserial por rangos,Mediana de la diferencia,p (Holm)
+Elevación de ST,FC media (lpm),32,13,durante - antes,112,0.00447892,0.575758,2.35415,0.0447892
+Elevación de ST,FC media (lpm),32,13,despues - durante,53,2.02344e-05,-0.799242,-4.94505,0.000242813
+Elevación de ST,FC media (lpm),32,13,despues - antes,151,0.0341199,-0.42803,-1.8579,0.238839
+Elevación de ST,RMSSD (ms),32,13,durante - antes,252,0.83204,0.0454545,-0.406875,1
+Elevación de ST,RMSSD (ms),32,13,despues - durante,169,0.0770481,0.359848,3.8115,0.462288
+Elevación de ST,RMSSD (ms),32,13,despues - antes,119,0.005712,0.549242,4.2773,0.051408
+Elevación de ST,HF (ms²),32,13,durante - antes,234,0.585975,-0.113636,-11.0282,1
+Elevación de ST,HF (ms²),32,13,despues - durante,129,0.0105092,0.511364,76.3876,0.0840734
+Elevación de ST,HF (ms²),32,13,despues - antes,91,0.000772963,0.655303,91.0795,0.00850259
+Elevación de ST,LF/HF,32,13,durante - antes,260,0.948544,0.0151515,-0.002695,1
+Elevación de ST,LF/HF,32,13,despues - durante,258,0.91922,0.0227273,0.614019,1
+Elevación de ST,LF/HF,32,13,despues - antes,256,0.890003,0.030303,0.36233,1
+Depresión de ST,FC media (lpm),66,35,durante - antes,174,2.67328e-09,0.842605,4.9521,3.20794e-08
+Depresión de ST,FC media (lpm),66,35,despues - durante,194,5.78919e-09,-0.824514,-7.9566,6.36811e-08
+Depresión de ST,FC media (lpm),66,35,despues - antes,595,0.00110975,-0.461782,-3.85305,0.00665849
+Depresión de ST,RMSSD (ms),66,35,durante - antes,477,5.94687e-05,-0.568521,-2.11838,0.00047575
+Depresión de ST,RMSSD (ms),66,35,despues - durante,404,7.4211e-06,0.634555,4.35622,6.67899e-05
+Depresión de ST,RMSSD (ms),66,35,despues - antes,744,0.0209274,0.327001,1.30618,0.0928611
+Depresión de ST,HF (ms²),66,35,durante - antes,502,0.000115632,-0.545907,-16.39,0.000809422
+Depresión de ST,HF (ms²),66,35,despues - durante,392,5.16686e-06,0.645409,30.4425,5.16686e-05
+Depresión de ST,HF (ms²),66,35,despues - antes,737,0.0185722,0.333333,12.1306,0.0928611
+Depresión de ST,LF/HF,66,35,durante - antes,883,0.155216,-0.201266,-0.51195,0.310431
+Depresión de ST,LF/HF,66,35,despues - durante,956,0.339569,-0.135233,-0.694445,0.339569
+Depresión de ST,LF/HF,66,35,despues - antes,801,0.0517544,-0.275441,-0.789169,0.155263

@@ -1,0 +1,6 @@
+{
+  "alfa": 0.05,
+  "n_min": 10,
+  "metricas": ["fc_media_lpm", "rmssd_ms", "hf_ms2", "lf_hf"],
+  "comparaciones": [["antes", "durante"], ["durante", "despues"], ["antes", "despues"]]
+}

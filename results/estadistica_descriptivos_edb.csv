@@ -1,0 +1,9 @@
+Signo,Métrica,Eventos,Registros,Mediana antes,IQR antes,Mediana durante,IQR durante,Mediana despues,IQR despues
+Elevación de ST,FC media (lpm),32,13,71.1812,20.0649,75.5625,17.8985,69.9535,20.8102
+Elevación de ST,RMSSD (ms),32,13,21.0844,14.6638,22.9356,16.3027,26.3545,13.7587
+Elevación de ST,HF (ms²),32,13,116.019,193.047,151.699,180.789,236.492,313.457
+Elevación de ST,LF/HF,32,13,3.79938,3.98636,2.57015,3.90136,3.51015,2.95005
+Depresión de ST,FC media (lpm),66,35,87.2431,18.3316,96.0293,26.8983,79.59,19.3946
+Depresión de ST,RMSSD (ms),66,35,13.8315,9.9585,9.86942,7.99926,14.8638,12.2765
+Depresión de ST,HF (ms²),66,35,56.9745,81.2445,26.9087,55.0575,65.268,126.275
+Depresión de ST,LF/HF,66,35,5.11472,3.99886,3.97337,3.4674,3.24382,3.59896
