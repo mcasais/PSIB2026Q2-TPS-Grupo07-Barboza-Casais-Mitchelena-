@@ -1,0 +1,16 @@
+{
+  "fs_hz": 250,
+  "rr_min_s": 0.4,
+  "rr_max_s": 1.8,
+  "criterio_ectopico_relativo": 0.20,
+  "ventana_s": 60,
+  "guarda_antes_s": 30,
+  "guarda_despues_s": 30,
+  "cobertura_min": 0.8,
+  "n_nn_min": 60,
+  "tolerancia_evento_s": 60,
+  "bandas_hz": {
+    "lf": [0.04, 0.15],
+    "hf": [0.15, 0.40]
+  }
+}
