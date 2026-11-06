@@ -50,6 +50,10 @@ from episodios import leer_config
 from exploracion import SIMBOLOS_LATIDO, mascara_descarte
 from rutas import CONFIG, DATOS, RESULTS
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 
 def leer_parametros():
     """Devuelve el diccionario de parámetros de config/qrs.json."""
@@ -265,6 +269,68 @@ def procesar_registro(base, registro, ventanas, p):
     return pd.concat(latidos, ignore_index=True), validacion
 
 
+# Tramos de 8 s que muestran el detector en tres situaciones típicas:
+# (registro, índice de derivación, inicio en s, título).
+CASOS_FIGURA = [
+    ('e0103', 1, 100, 'a) Señal limpia'),
+    ('e0305', 0, 300, 'b) Ondas T grandes'),
+    ('e0147', 0, 1830, 'c) Deriva de línea de base fuerte'),
+]
+
+
+def figura_deteccion(base, latidos, p, salida, casos=CASOS_FIGURA, duracion_s=8):
+    """Superpone los QRS detectados y los latidos anotados sobre el ECG en
+    tramos cortos, para ver a simple vista si la detección es correcta.
+    Marca con una cruz roja los falsos positivos y los falsos negativos."""
+    fig, ejes = plt.subplots(len(casos), 1, figsize=(11, 2.4 * len(casos)))
+    ejes = np.atleast_1d(ejes)
+    for eje, (registro, k, t0, titulo) in zip(ejes, casos):
+        x_mv, fs, nombres = leer_senal_mv(base, registro)
+        anot = wfdb.rdann(str(DATOS / leer_config(base)['carpeta'] / registro),
+                          leer_config(base)['extension_anotaciones'])
+        ref = np.array([s for s, sim in zip(anot.sample, anot.symbol) if sim in SIMBOLOS_LATIDO])
+        det = np.sort(latidos.loc[(latidos['registro'] == registro)
+                                  & (latidos['derivacion'] == k), 'idx_qrs'].to_numpy())
+        n_tol = int(round(p['tolerancia_validacion_s'] * fs))
+        i0, i1 = int(t0 * fs), int((t0 + duracion_s) * fs)
+        t = np.arange(i0, i1) / fs
+        y = x_mv[i0:i1, k]
+        r = ref[(ref >= i0) & (ref < i1)]
+        d = det[(det >= i0) & (det < i1)]
+        fp = [q for q in d if np.min(np.abs(ref - q)) > n_tol]
+        fn = [q for q in r if len(det) == 0 or np.min(np.abs(det - q)) > n_tol]
+        alto, rango = y.max(), np.ptp(y)
+
+        eje.plot(t, y, color='#555555', linewidth=0.9)
+        eje.plot(r / fs, np.full(len(r), alto + 0.12 * rango), 'v', color='#eb6834',
+                 markersize=8, label='Latido anotado (cardiólogos)')
+        eje.plot(d / fs, x_mv[d, k], 'o', mfc='none', mec='#2a78d6', mew=1.8,
+                 markersize=10, label='QRS detectado (Pan-Tompkins)')
+        for q in d:
+            eje.axvline(q / fs, color='#2a78d6', linewidth=0.6, alpha=0.35)
+        if fp:
+            eje.plot(np.array(fp) / fs, x_mv[fp, k], 'x', color='#c0392b',
+                     markersize=11, mew=2, label='Falso positivo')
+        if fn:
+            eje.plot(np.array(fn) / fs, np.full(len(fn), alto + 0.12 * rango), 'x',
+                     color='#c0392b', markersize=11, mew=2, label='Falso negativo')
+        eje.set_ylim(y.min() - 0.1 * rango, alto + 0.25 * rango)
+        eje.set_title(f'{titulo} - {registro}, derivación {nombres[k]}: {len(d)} detectados, '
+                      f'{len(r)} anotados, {len(fp)} FP, {len(fn)} FN', fontsize=10, loc='left')
+        eje.set_ylabel('mV')
+        eje.spines[['top', 'right']].set_visible(False)
+        eje.grid(color='#e6e6e6')
+        eje.set_axisbelow(True)
+    ejes[-1].set_xlabel('Tiempo (s)')
+    manijas, etiquetas = ejes[0].get_legend_handles_labels()
+    fig.legend(manijas, etiquetas, loc='upper center', ncol=2, frameon=False,
+               fontsize=9, bbox_to_anchor=(0.5, 1.0))
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    salida.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(salida, dpi=150)
+    plt.close(fig)
+
+
 if __name__ == '__main__':
     base = sys.argv[1] if len(sys.argv) > 1 else 'edb'
     cfg = leer_config(base)
@@ -321,3 +387,7 @@ if __name__ == '__main__':
     print("\nqrs_edb.csv.gz: latidos detectados (un latido por fila)")
     print("\nvalidacion_qrs_edb.csv: Recall y Precisión por registro y derivación")
     print(">>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+    if base == 'edb':
+        salida_fig = RESULTS / 'figuras' / f'qrs_deteccion_{base}.png'
+        figura_deteccion(base, latidos, p, salida_fig)
+        print(f"\n{salida_fig.name}: QRS detectados superpuestos al ECG")

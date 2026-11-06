@@ -413,7 +413,7 @@ if __name__ == "__main__":
     print("Total de episodios detectados: " + str(len(det)))
 
     (RESULTS / "figuras").mkdir(exist_ok=True)
-    mas_episodios =  ("e0119", 1)         #Para elegir el de más anotaciones: ref_total.groupby(["registro", "derivacion"]).size().idxmax()
+    mas_episodios =  ("e0604", 1)         #Para elegir el de más anotaciones: ref_total.groupby(["registro", "derivacion"]).size().idxmax()
     figura_segmentacion(st_df, datos, ref_total, det, mas_episodios[0], mas_episodios[1], p, umbral,
                         RESULTS / "figuras" / f"segmentacion_ejemplo_{base}.png")
     print(f"\nFIGURA segmentacion_ejemplo_{base}.png: muestra la evolución del coeficiente de "
