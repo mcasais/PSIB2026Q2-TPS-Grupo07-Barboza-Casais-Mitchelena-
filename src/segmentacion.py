@@ -575,9 +575,7 @@ def diagnostico_amplitud(datos, ref, p):
     return pd.DataFrame(filas)
 
 if __name__ == "__main__":
-    print("\n>>>>>>>>>>>   Paso 7: segmentación por coef de disimilitud vs umbral global en serie ST y T <<<<<<<<<<<<")
-
-    print("\n <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< CORRIMIENTO DEL SEGMENTO ST >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+    print("\n>>>>>>>>>>>   Paso 7: segmentación por coef de disimilitud vs umbral global en serie ST <<<<<<<<<<<<")
     base = sys.argv[1] if len(sys.argv) > 1 else "edb"
     p = leer_parametros()
     st_df = pd.read_csv(RESULTS / f"st_serie_{base}.csv.gz")
@@ -684,58 +682,6 @@ if __name__ == "__main__":
     print("\n¨¨¨¨¨¨¨¨¨¨¨ ¿Alcanza nuestra serie el umbral de 0,1 mV en los episodios anotados? ¨¨¨¨¨¨¨¨¨¨¨")
     print(resumen_diagnostico.to_string(float_format="%.3f"))
 
-    print("\n <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< DEFORMACIÓN DE LA ONDA T >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
-
-    # --- Detección por umbral en la serie de la onda T (EDB: 0,2 mV durante 30 s) ---
-    t_df = pd.read_csv(RESULTS / f"t_serie_{base}.csv.gz").rename(columns={"t_mv": "st_mv"})
-    t_df["registro"] = t_df["registro"].astype(str)
-    p_t = {**p, "umbral_st_mv": p["umbral_t_mv"], "umbral_limite_mv": p["umbral_limite_t_mv"]}
-    datos_t = {(r, d): preparar_derivacion(r, d, g, p_t)
-               for (r, d), g in t_df.groupby(["registro", "derivacion"])}
-    ref_t = episodios_referencia(gt_df, set(datos_t), "T")
-    print("\nEpisodios T anotados por signo: " + str(ref_t["signo"].value_counts().to_dict()))
-    det_t = detectar_umbral_todas(datos_t, p_t)
-    det_t.to_csv(RESULTS / f"segmentacion_umbral_t_{base}.csv", index=False, float_format="%.6g")
-
-    comparacion_t = {}
-    for nombre_conjunto, registros in (("Evaluación", evaluacion),
-                                       ("Todos los registros", set(t_df["registro"]))):
-        comparacion_t[("Umbral T (protocolo EDB)", nombre_conjunto)] = evaluar_solapamiento(
-            det_t[det_t["registro"].isin(registros)],
-            ref_t[ref_t["registro"].isin(registros)])
-    tabla_comparacion_t = pd.DataFrame(comparacion_t).T
-    for columna in ["Episodios anotados", "Episodios detectados", "Anotados detectados",
-                    "Detectados correctos"]:
-        tabla_comparacion_t[columna] = tabla_comparacion_t[columna].astype(int)
-    tabla_comparacion_t.to_csv(RESULTS / f"segmentacion_comparacion_t_{base}.csv", float_format="%.4g")
-    print("\n¨¨¨¨¨¨¨¨¨¨¨ Detección de episodios T por solapamiento (criterio EC57) ¨¨¨¨¨¨¨¨¨¨¨")
-    print(tabla_comparacion_t.to_string(float_format="%.3f"))
-
-    for nombre, det_x, ref_x in (("ST", det_umbral, ref_total), ("T", det_t, ref_t)):
-        m = evaluar(det_x, ref_x, p)
-        print(nombre + ": error de inicio mediana " + str(round(m["Error de inicio, mediana (s)"], 1))
-              + " s (IQR " + str(round(m["Error de inicio, RIC (s)"], 1)) + "), error de fin mediana "
-              + str(round(m["Error de fin, mediana (s)"], 1)) + " s (IQR "
-              + str(round(m["Error de fin, RIC (s)"], 1)) + "), aciertos con tolerancia: "
-              + str(m["Aciertos"]))
-
-    diagnostico_t = diagnostico_amplitud(datos_t, ref_t, p_t)
-    por_signo_t = diagnostico_t.groupby("signo")
-    resumen_diagnostico_t = pd.DataFrame({
-        "Episodios": por_signo_t.size(),
-        "Alcanzan el umbral (máximo)": por_signo_t["desvio_max_mv"].apply(lambda x: (x >= p_t["umbral_st_mv"]).mean()),
-        "Alcanzan el umbral sostenido 30 s": por_signo_t["desvio_movil_max_mv"].apply(lambda x: (x >= p_t["umbral_st_mv"]).mean()),
-        "Mediana del desvío máximo (mV)": por_signo_t["desvio_max_mv"].median(),
-        "Mediana del desvío sostenido (mV)": por_signo_t["desvio_movil_max_mv"].median()})
-    print("\n¨¨¨¨¨¨¨¨¨¨¨ ¿Alcanza nuestra serie T el umbral de 0,2 mV en los episodios anotados? ¨¨¨¨¨¨¨¨¨¨¨")
-    print(resumen_diagnostico_t.to_string(float_format="%.3f"))
-
-    mas_episodios_t = ref_t.groupby(["registro", "derivacion"]).size().idxmax()
-    figura_segmentacion_umbral(datos_t[mas_episodios_t], ref_t, det_t, p_t,
-                               RESULTS / "figuras" / f"segmentacion_umbral_t_{base}.png", "T")
-    print(f"\nFIGURA segmentacion_umbral_t_{base}.png: detección por umbral en la serie de la onda T "
-          "de la derivación con más episodios T anotados.")
-    
     afectadas = []
     for (registro, derivacion), d in datos.items():
         n = int(round(p["referencia_s"] * d["fs"]))
