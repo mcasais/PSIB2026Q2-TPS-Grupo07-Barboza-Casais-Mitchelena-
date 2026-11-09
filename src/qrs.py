@@ -383,11 +383,15 @@ if __name__ == '__main__':
     latidos.to_csv(salida_lat, index=False)
     salida_val = RESULTS / f'validacion_qrs_{base}.csv'
     validacion.to_csv(salida_val, index=False, float_format='%.4f')
-    print("\nDetección del QRS completada. Resultados guardados en:")
-    print("\nqrs_edb.csv.gz: latidos detectados (un latido por fila)")
-    print("\nvalidacion_qrs_edb.csv: Recall y Precisión por registro y derivación")
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
     if base == 'edb':
         salida_fig = RESULTS / 'figuras' / f'qrs_deteccion_{base}.png'
         figura_deteccion(base, latidos, p, salida_fig)
-        print(f"\n{salida_fig.name}: QRS detectados superpuestos al ECG")
+    
+    print("\nDetección del QRS completada. Resultados guardados en:")
+    print("\nqrs_edb.csv.gz: latidos detectados (un latido por fila)")
+    print(f"\nFIGURA qrs_deteccion_{base}: muestra la detección de los complejos QRS en algunas señales de ejemplo\n")
+    print("\nvalidacion_qrs_edb.csv: Recall y Precisión de la detección por registro y derivación")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+
+

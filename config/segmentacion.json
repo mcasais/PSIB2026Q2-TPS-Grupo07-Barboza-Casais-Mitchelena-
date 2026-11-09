@@ -15,6 +15,7 @@
   "umbral_limite_mv": 0.05,
   "duracion_min_s": 30,
   "umbral_t_mv": 0.2,
-  "umbral_limite_t_mv": 0.1
+  "umbral_limite_t_mv": 0.1, 
+  "extender_bordes": true
 }
 
