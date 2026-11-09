@@ -17,12 +17,6 @@
   "max_hueco_s": 5,
   "simbolos_validos": "NLRB",
   "tolerancia_latido_s": 0.15,
-  "ejemplo": {"registro": "e0103", "derivacion": 0},
-  "onda_t": {
-    "ventana_ms": [160, 400],
-    "ancho_ms": 20,
-    "referencia_s": 30,
-    "n_ejemplos": 4
-}
+  "ejemplo": {"registro": "e0103", "derivacion": 0}
 }
 
