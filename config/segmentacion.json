@@ -9,6 +9,12 @@
   "duracion_min_episodio_s": 28,
   "tolerancia_inicio_s": 60,
   "umbrales_eta": [1, 1.5, 2, 3, 4, 5, 6, 8],
-  "semilla_division": 0
+  "semilla_division": 0,
+  "referencia_s": 30,
+  "umbral_st_mv": 0.1,
+  "umbral_limite_mv": 0.05,
+  "duracion_min_s": 30,
+  "umbral_t_mv": 0.2,
+  "umbral_limite_t_mv": 0.1
 }
 

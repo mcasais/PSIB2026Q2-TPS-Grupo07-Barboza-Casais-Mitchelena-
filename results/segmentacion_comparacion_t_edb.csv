@@ -1,0 +1,3 @@
+,,Episodios anotados,Episodios detectados,Anotados detectados,Detectados correctos,Recall,Precisión,F1
+Umbral T (protocolo EDB),Evaluación,173,146,95,65,0.5491,0.4452,0.4917
+Umbral T (protocolo EDB),Todos los registros,399,360,240,160,0.6015,0.4444,0.5112
