@@ -3,6 +3,7 @@
 Serie temporal de la amplitud de la onda T latido a latido e interpolada.
 Usa la misma cadena de filtrado, los mismos latidos normales, el mismo
 isoeléctrico (tramo plano del PR) y el mismo suavizado que la serie ST.
+Se usa para analizar la evolución de la onda T en el tiempo, por ejemplo para detectar isquemia aguda. La serie ST se analiza para buscar corrimientos, la serie T para ver si la onda T se invierte o se hace más alta, es decir, si se deforma.
 
 Uso:
     python src/t_serie.py [base]
