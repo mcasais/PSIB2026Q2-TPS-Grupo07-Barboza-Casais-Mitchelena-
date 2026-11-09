@@ -1,4 +1,4 @@
 ,,Episodios anotados,Episodios detectados,Anotados detectados,Detectados correctos,Recall,Precisión,F1
-Disimilitud (η),Evaluación,177,74,47,51,0.2655,0.6892,0.3834
+Disimilitud (η),Evaluación,177,193,105,111,0.5932,0.5751,0.584
 Umbral (protocolo EDB),Evaluación,177,150,108,115,0.6102,0.7667,0.6795
 Umbral (protocolo EDB),Todos los registros,368,294,228,220,0.6196,0.7483,0.6779
