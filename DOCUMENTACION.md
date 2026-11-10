@@ -4,7 +4,6 @@ Detección de episodios del segmento ST en la European ST-T Database (EDB).
 16.63 Procesamiento de Señales e Imágenes Biomédicas, ITBA, 2C 2026.
 Integrantes: Tobías Barboza, Martina Casais, Dolores Mitchelena.
 
-> Este documento describe el estado de la rama `martina` (commit `a5c4a85`, "filtrado").
 > Explica qué contiene cada carpeta y cada archivo, y por qué se tomó cada decisión de implementación.
 
 ---
@@ -12,8 +11,7 @@ Integrantes: Tobías Barboza, Martina Casais, Dolores Mitchelena.
 ## 1. Estructura general
 
 ```
-.
-├── CLAUDE.md            objetivo, pipeline, convenciones e instrucciones para trabajar con Claude
+├── main.py              archivo para correr todo el pipeline
 ├── README.md            solo el título del repo
 ├── DOCUMENTACION.md     este archivo
 ├── .gitignore           excluye data/, .venv/ y __pycache__/
@@ -36,6 +34,8 @@ Todos los scripts se ejecutan desde la raíz del repo. Cada uno lee lo que gener
 | 4 | `python src/filtrado.py [base] [registros...]` | todo lo anterior | `filtrado_*_edb.csv`, `figuras/filtrado_*.png` |
 
 **El paso 5 (QRS) se ejecuta antes que el 4 (filtrado)**, porque dos de los filtros (splines y Wiener) necesitan conocer la posición de cada latido.
+
+**Ejecución completa:** `python main.py [base]` corre todos los pasos en el orden correcto (descargar_datos, episodios, exploracion, qrs, filtrado, st_serie, segmentacion, ensamble, hrv, estadistica), comprueba que existan los insumos de cada paso y se detiene con código 1 si algo falla. `python main.py --desde qrs` retoma desde un paso y `python main.py --listar` muestra insumos y salidas de cada uno.
 
 ### Decisiones de organización (transversales)
 
@@ -425,6 +425,3 @@ Criterios comunes de las figuras: paleta azul (`#2a78d6`) y naranja (`#eb6834`),
 | 9. VFC (Lomb, VLF/LF/HF) | Pendiente |
 | 10. Estadística (Friedman, Wilcoxon, Holm, tamaño del efecto) | Pendiente |
 
-Para tener en cuenta:
-- La sección "Pipeline y estado" de `CLAUDE.md` todavía marca los pasos 4 y 5 como pendientes.
-- `README.md` está vacío y podría reemplazarse por una versión corta de este documento.
