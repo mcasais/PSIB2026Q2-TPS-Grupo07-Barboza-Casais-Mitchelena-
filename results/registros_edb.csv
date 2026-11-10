@@ -3,7 +3,7 @@ e0103,V4,MLIII,62,M,Mixed angina; 1-vessel disease (RCA),"nitrates, diltiazem",7
 e0104,MLIII,V4,47,M,"Mixed angina; 2-vessel disease (LAD, LCX); Inferior myocardial infarction","nitrates, verapamil",7696,0.003378,6,11,0.18,0.145,0.3652,0.3155,0.006209,0.00484,0.01321,0.009623,0.01988,0.01651,0.001644,0,0,0,0.05833,0.04028
 e0105,MLIII,V4,65,M,Mixed angina; Inferior myocardial infarction; 3-vessel disease,verapamil,6629,0.0003017,11,7,0.19,0.075,0.57,0.1602,0.004315,0.003799,0.004574,0.004128,0.007661,0.007547,0.0002222,0,6,0,0.01528,0.01944
 e0106,MLIII,V3,56,M,"Mixed angina; 2-vessel disease (LAD, LCX)","nitrates, verapamil",7152,0.0006991,8,7,0.11,0.105,1.016,0.2302,0.003628,0.004194,0.003953,0.004493,0.005626,0.002937,0.001549,0,0,0,0.01667,0.006944
-e0107,D3,V4,52,M,Mixed angina; 1-vessel disease (LCX),"nitrates, verapamil",7029,0.001992,4,12,0.31,0.15,0.4702,0.36,0.008318,0.006975,0.02768,0.01388,0.1847,0.06667,0.001078,0,0,0,0.2486,0.1139
+e0107,D3,V4,52,M,Mixed angina; 1-vessel disease (LCX),"nitrates, verapamil",7029,0.001992,4,12,0.31,0.15,0.4702,0.36,0.008318,0.006975,0.02768,0.01388,0.1847,0.06666,0.001078,0,0,0,0.2486,0.1139
 e0108,V4,MLIII,46,M,Mixed angina; 3-vessel disease; Anterior myocardial infarction,"nitrates, verapamil",6597,0.0006063,9,15,0.22,0.135,0.42,0.2505,0.01073,0.01183,0.01137,0.01269,0.01082,0.01401,0.0002789,0.0009717,0,0,0.01944,0.025
 e0110,V3,MLIII,47,M,"Resting angina; 2-vessel disease (LAD, LCX)","nitrates, nifedipine",6971,0.0001435,3,4,0.155,0.155,0.335,0.4602,0.007832,0.004508,0.01533,0.006621,0.05591,0.01596,0,0.002043,0,6,0.09722,0.03333
 e0111,MLIII,V4,43,M,Mixed angina; 1-vessel disease (LAD),,7535,0.0001327,2,6,0.23,0.1975,0.5052,0.5355,0.005399,0.004954,0.01226,0.00924,0.03524,0.008369,0.001455,0,0,0,0.07639,0.02778
@@ -25,7 +25,7 @@ e0129,MLIII,V3,48,M,Mixed angina; 1-vessel disease (RCA),"nitrates, nifedipine",
 e0133,MLIII,V3,48,M,Mixed angina; 1-vessel disease (RCA),"nitrates, nifedipine",6570,0.0003044,0,3,0.105,0.31,0.4015,1.6,0.006717,0.005244,0.01145,0.008262,0.04141,0.2075,0.007385,0.002523,7,0,0.06528,0.2611
 e0136,MLIII,V4,47,M,Mixed angina; 1-vessel disease (RCA),"nitrates, diltiazem",7044,0,6,7,0.15,0.085,1.102,0.285,0.01024,0.004864,0.01504,0.00656,0.05822,0.006873,0.01833,0,0,0,0.07917,0.01667
 e0139,MLIII,V4,47,M,Mixed angina; 1-vessel disease (RCA),"nitrates, diltiazem",10631,0,4,1,0.2,0.1325,1.508,1.04,0.007604,0.005051,0.0173,0.01675,0.1156,0.07316,0.01724,0,0,9,0.1681,0.1125
-e0147,MLIII,V4,35,M,Mixed angina; 3-vessel disease,"nifedipine, nitrates, beta-blockers",6374,0.0004707,5,3,0.19,0.255,0.695,0.55,0.03398,0.008381,0.04345,0.01074,0.03574,0.005694,0.001967,0,0,0,0.06389,0.01111
+e0147,MLIII,V4,35,M,Mixed angina; 3-vessel disease,"nifedipine, nitrates, beta-blockers",6374,0.0004707,5,3,0.19,0.255,0.695,0.55,0.03398,0.008381,0.04345,0.01074,0.03575,0.005694,0.001967,0,0,0,0.06389,0.01111
 e0148,MLIII,V4,35,M,Mixed angina; 3-vessel disease,"nifedipine, nitrates, beta-blockers",6676,0.002097,4,6,0.165,0.255,0.776,0.5717,0.07507,0.01468,0.09455,0.01704,0.9982,0.04561,0.009221,0.002148,0,0,1,0.06944
 e0151,V3,MLIII,56,M,Mixed angina; 1-vessel disease (LAD),"nifedipine, nitrates",7546,0.0001325,2,6,0.11,0.14,0.345,1.07,0.006093,0.0105,0.01529,0.0241,0.02144,0.05951,0,0.005104,0,0,0.04444,0.1306
 e0154,MLIII,V4,51,M,Resting angina; 1-vessel disease (LAD),"diltiazem, nitrates",6782,0,1,1,0.185,0.385,0.7827,0.8805,0.004248,0.004817,0.008643,0.007446,0.05705,0.02213,0.003178,0,0,0,0.07917,0.03333

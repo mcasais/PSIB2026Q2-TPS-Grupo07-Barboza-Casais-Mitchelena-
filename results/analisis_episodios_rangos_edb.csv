@@ -1,0 +1,9 @@
+Característica,Rango,n (+),% (+),n (-),% (-)
+Duración (s),≤ 1 min,22,18.6441,22,8.94309
+Duración (s),1 a 5 min,73,61.8644,126,51.2195
+Duración (s),5 a 10 min,15,12.7119,44,17.8862
+Duración (s),> 10 min,8,6.77966,54,21.9512
+Amplitud máxima (mV),"≤ 0,1 mV",26,22.0339,70,28
+Amplitud máxima (mV),"0,1 a 0,2 mV",40,33.8983,112,44.8
+Amplitud máxima (mV),"0,2 a 0,3 mV",20,16.9492,45,18
+Amplitud máxima (mV),"> 0,3 mV",32,27.1186,23,9.2

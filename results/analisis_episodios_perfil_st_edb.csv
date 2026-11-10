@@ -1,0 +1,3 @@
+Signo,Amplitud del pico (mV),Instante del pico (s),Episodios en el pico,Instante en que alcanza la fracción del pico (s),Tiempo de subida hasta el pico (s),Instante de retorno (s),Tiempo de retorno desde el pico (s)
+Elevación de ST,0.145002,52.5,92,1,51.5,90.5,38
+Depresión de ST,-0.0977922,68.5,183,0,68.5,220,151.5
