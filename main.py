@@ -19,8 +19,7 @@ Orden y dependencias (el filtrado NO va primero: necesita las detecciones QRS):
     segmentacion    -> segmentacion_*       (necesita st_serie, episodios)
     ensamble        -> ensamble_*           (necesita st_serie, episodios)
     hrv             -> hrv                  (necesita qrs, calidad, episodios)
-    estadistica     -> estadistica_*        (necesita hrv)
-    analisis_episodios -> analisis_episodios_*  (necesita episodios, ensamble, hrv)
+    estadistica     -> estadistica_*        (necesita hrv y episodios)
 """
 import argparse
 import subprocess
@@ -57,16 +56,14 @@ PIPELINE = [
      ["results/segmentacion_{base}.csv"]),
     ("ensamble", "src/ensamble.py", True,
      ["results/st_serie_{base}.csv.gz", "results/episodios_{base}.csv"],
-     ["results/ensamble_{base}.csv"]),
+     ["results/ensamble_{base}.csv", "results/ensamble_perfil_st_{base}.csv"]),
     ("hrv", "src/hrv.py", True,
      ["results/qrs_{base}.csv.gz", "results/calidad_ventanas_{base}.csv.gz",
       "results/episodios_{base}.csv"],
      ["results/hrv_{base}.csv"]),
     ("estadistica", "src/estadistica.py", True,
-     ["results/hrv_{base}.csv"], ["results/estadistica_friedman_{base}.csv"]),
-    ("analisis_episodios", "src/analisis_episodios.py", True,
-     ["results/episodios_{base}.csv", "results/ensamble_{base}.csv", "results/hrv_{base}.csv"],
-     ["results/analisis_episodios_comparacion_{base}.csv"]),
+     ["results/hrv_{base}.csv", "results/episodios_{base}.csv"],
+     ["results/estadistica_friedman_{base}.csv", "results/estadistica_episodios_comparacion_{base}.csv"]),
 ]
 NOMBRES = [paso[0] for paso in PIPELINE]
 
@@ -125,4 +122,3 @@ if __name__ == "__main__":
         listar(args.base)
         sys.exit(0)
     sys.exit(ejecutar_pipeline(args.base, args.desde))
-    
