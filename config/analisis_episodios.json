@@ -1,0 +1,5 @@
+{
+  "n_min": 10,
+  "alfa": 0.05,
+  "fraccion_latencia": 0.5
+}
