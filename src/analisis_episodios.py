@@ -1,9 +1,9 @@
 """ ||||||||||||  11VO PASO: ELEVACIONES VS DEPRESIONES DE ST ||||||||||||
 
-Comparación de las características de los episodios de elevación (+) y de
-depresión (-) del segmento ST.
+Comparación de las características de los episodios de elevación y de
+depresión del segmento ST. La elevación de ST suele asociarse a isquemia transmural aguda, con episodios breves y abruptos. La depresión suele asociarse a isquemia subendocárdica por demanda, más lenta y más ligada a la frecuencia cardíaca.
 
-Pregunta: ¿se comportan distinto las elevaciones y las depresiones?
+Para poder profundizar en el desarrollo del trabajo, nos proponemos analizar el comportamiento de las elevaciones y las depresiones de los segmentos ST. 
 
 Características por episodio (salen de las anotaciones de la base):
     duracion_s        fin - inicio. Se excluyen los episodios con fin inferido
@@ -16,11 +16,6 @@ Características por episodio (salen de las anotaciones de la base):
     t_recuperacion_s  tiempo de recuperación: fin - pico. Se excluyen los de fin
                       inferido por la misma razón que la duración.
 
-Comparación: Mann-Whitney (dos grupos independientes, sin supuesto de
-normalidad: las duraciones tienen una cola muy larga). Tamaño del efecto: r de
-Cliff / biserial por rangos = 2U/(n1*n2) - 1 (-1 a 1; positivo si las elevaciones
-tienden a ser mayores que las depresiones). Corrección de Holm entre las
-características.
 
 Advertencia (no independencia): un mismo evento puede estar anotado en las dos
 derivaciones y un registro aporta varios episodios. Los p se leen como
@@ -46,17 +41,7 @@ Se comparan entre signos los CAMBIOS (durante - antes y después - antes): en
 diferencia para FC y RMSSD y en cociente logarítmico para las potencias y LF/HF,
 que son muy asimétricas. Mann-Whitney y Holm entre todas las comparaciones.
 
-Uso:
-    python src/analisis_episodios.py [base]
-Salidas:
-    results/analisis_episodios_caracteristicas_<base>.csv   una fila por episodio
-    results/analisis_episodios_comparacion_<base>.csv       comparación por signo
-    results/analisis_episodios_rangos_<base>.csv            % de episodios por rango y signo
-    results/analisis_episodios_perfil_st_<base>.csv         descriptores del ensamble por signo
-    results/analisis_episodios_hrv_<base>.csv               cambios de HRV: + vs -
-    results/figuras/analisis_episodios_distribuciones_<base>.png
-    results/figuras/analisis_episodios_perfil_st_<base>.png
-    results/figuras/analisis_episodios_hrv_<base>.png
+
 """
 import json
 import sys
