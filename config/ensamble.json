@@ -4,5 +4,6 @@
   "basal_ini_s": -300,
   "basal_fin_s": -120,
   "fraccion_valida_basal": 0.5,
-  "n_min_por_instante": 10
+  "n_min_por_instante": 10,
+  "fraccion_latencia": 0.5
 }

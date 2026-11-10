@@ -23,6 +23,16 @@ Salidas:
     results/ensamble_<base>.csv                 mediana, p25, p75 y n por instante y signo
     results/ensamble_exclusiones_<base>.csv     episodios incluidos y excluidos
     results/figuras/ensamble_st_<base>.png
+    results/ensamble_perfil_st_<base>.csv       descriptores de la curva mediana de cada signo
+    results/figuras/ensamble_perfil_st_<base>.png
+
+Descriptores del perfil (descriptores_perfil): amplitud e instante del pico, el
+instante en que |mediana| alcanza fraccion_latencia del pico (puede ser anterior
+al inicio anotado: la anotación marca el cruce del umbral y el ST ya venía
+moviéndose), el tiempo de subida y el instante en que vuelve por debajo de esa
+fracción. Ojo: el ensamble se alinea al inicio y los episodios duran distinto,
+así que después del pico la mediana mezcla episodios que ya terminaron con
+otros que siguen.
 """
 import json
 import sys
@@ -160,6 +170,68 @@ def figura_ensamble(ensamble, duraciones, ruta):
     plt.close(fig)
 
 
+def descriptores_perfil(ensamble, p):
+    """Descriptores de la curva mediana del ensamble de cada signo.
+
+    Entradas: tabla de ensamble_<base>.csv y p (fraccion_latencia). Salida:
+    DataFrame con una fila por signo: amplitud del pico (mV, con signo), su
+    instante (s; el pico se busca desde t = 0), n de episodios con dato en el
+    pico, instante en que |mediana| alcanza por primera vez la fracción del pico
+    (puede ser negativo: la anotación marca el cruce del umbral, y el ST ya
+    venía moviéndose), tiempo de subida (pico - ese instante), instante de
+    retorno (primer instante posterior al pico con |mediana| por debajo de la
+    fracción; NaN si no vuelve en la ventana) y tiempo de retorno desde el pico.
+    """
+    filas = []
+    for s in ("+", "-"):
+        e = ensamble[ensamble["signo"] == s].dropna(subset=["st_mediana_mv"]).reset_index(drop=True)
+        desde_cero = e[e["t_relativo_s"] >= 0]
+        if desde_cero.empty:
+            continue
+        magnitud = e["st_mediana_mv"].abs()
+        i_pico = int(magnitud[desde_cero.index].idxmax())
+        umbral = p["fraccion_latencia"] * magnitud[i_pico]
+        t_pico = e.loc[i_pico, "t_relativo_s"]
+        t_sube = e.loc[e.index[(magnitud >= umbral) & (e.index <= i_pico)][0], "t_relativo_s"]
+        despues = e.index[(e.index > i_pico) & (magnitud < umbral)]
+        t_retorno = e.loc[despues[0], "t_relativo_s"] if len(despues) else np.nan
+        filas.append({"Signo": NOMBRES_SIGNO[s], "Amplitud del pico (mV)": e.loc[i_pico, "st_mediana_mv"],
+                      "Instante del pico (s)": t_pico, "Episodios en el pico": int(e.loc[i_pico, "n_episodios"]),
+                      "Instante en que alcanza la fracción del pico (s)": t_sube,
+                      "Tiempo de subida hasta el pico (s)": t_pico - t_sube,
+                      "Instante de retorno (s)": t_retorno,
+                      "Tiempo de retorno desde el pico (s)": t_retorno - t_pico})
+    return pd.DataFrame(filas)
+
+
+def figura_perfil(ensamble, ruta):
+    """Dos paneles: mediana e IQR del cambio de ST de elevaciones y depresiones
+    superpuestas (izquierda) y la mediana normalizada por el valor absoluto de su
+    pico, para comparar la forma (derecha)."""
+    fig, (ax, axn) = plt.subplots(1, 2, figsize=(12, 4.2))
+    for s in ("+", "-"):
+        e = ensamble[ensamble["signo"] == s]
+        color = COLORES_SIGNO[s]
+        ax.plot(e["t_relativo_s"], e["st_mediana_mv"], color=color, lw=2, label=NOMBRES_SIGNO[s])
+        ax.fill_between(e["t_relativo_s"], e["st_p25_mv"], e["st_p75_mv"], color=color, alpha=0.2)
+        pico = e.loc[e["t_relativo_s"] >= 0, "st_mediana_mv"].abs().max()
+        axn.plot(e["t_relativo_s"], e["st_mediana_mv"].abs() / pico, color=color, lw=2,
+                 label=NOMBRES_SIGNO[s])
+    for a in (ax, axn):
+        a.axvline(0, color="k", ls="--", alpha=0.7)
+        a.set_xlabel("Tiempo relativo al inicio (s)")
+        a.grid(color="#e6e6e6")
+        a.spines[["top", "right"]].set_visible(False)
+    ax.axhline(0, color="gray", lw=0.8)
+    ax.set_ylabel("Cambio de ST (mV): mediana e IQR")
+    ax.legend(frameon=False)
+    axn.set_ylabel("|mediana| / |pico|")
+    axn.set_title("Forma del perfil (normalizado por su pico)")
+    fig.tight_layout()
+    fig.savefig(ruta, dpi=150)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     print("\n>>>>>>>>>>>   Paso 8: ensamble de ST alineado al inicio   <<<<<<<<<<<<")
     base = sys.argv[1] if len(sys.argv) > 1 else "edb"
@@ -183,3 +255,11 @@ if __name__ == "__main__":
     figura_ensamble(ensamble, duraciones, RESULTS / "figuras" / f"ensamble_st_{base}.png")
     print(f"\nFIGURA ensamble_st_{base}.png: mediana e IQR del cambio de ST alineado al inicio "
           "del episodio, por signo, con la cantidad de episodios en cada instante.")
+
+    perfil = descriptores_perfil(ensamble, p)
+    perfil.to_csv(RESULTS / f"ensamble_perfil_st_{base}.csv", index=False, float_format="%.6g")
+    print("\n ------------- Perfil temporal del ST: descriptores de la curva mediana ------------- ")
+    print(perfil.to_string(index=False, float_format="%.3g"))
+    figura_perfil(ensamble, RESULTS / "figuras" / f"ensamble_perfil_st_{base}.png")
+    print(f"\nFIGURA ensamble_perfil_st_{base}.png: perfil mediano del ST de elevaciones y "
+          "depresiones, en mV y normalizado por su pico.")
